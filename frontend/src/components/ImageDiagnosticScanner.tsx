@@ -5,7 +5,6 @@ import {
   Video,
   RefreshCw,
   Send,
-  Eye,
   TrendingDown,
   Play,
   Pause,
@@ -34,7 +33,7 @@ import {
   Filler
 } from "chart.js";
 import { api } from "../services/api";
-import type { RoadDefectItem, AuthorityItem, VideoInspectionResult, BenchmarkSampleMedia } from "../types";
+import type { RoadDefectItem, AuthorityItem, VideoInspectionResult } from "../types";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend, Filler);
 
@@ -43,19 +42,16 @@ interface ImageDiagnosticScannerProps {
   onOpenAlertModal?: (defect: RoadDefectItem, imgB64?: string) => void;
 }
 
-type InputMode = "past_image" | "past_video" | "live_snapshot" | "live_stream" | "comparative";
+type InputMode = "past_video" | "live_snapshot" | "live_stream" | "comparative";
 
 export const ImageDiagnosticScanner: React.FC<ImageDiagnosticScannerProps> = ({
   authorities = [],
   onOpenAlertModal,
 }) => {
   // Navigation & Mode
-  const [activeMode, setActiveMode] = useState<InputMode>("past_image");
-  const [activeViewMode, setActiveViewMode] = useState<"annotated" | "split" | "raw" | "depth">("annotated");
+  const [activeMode, setActiveMode] = useState<InputMode>("past_video");
 
-  // Image Input & State
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  // Snapshot & Scan State
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isScanning, setIsScanning] = useState<boolean>(false);
   const [diagnosticResult, setDiagnosticResult] = useState<any | null>(null);
@@ -84,24 +80,6 @@ export const ImageDiagnosticScanner: React.FC<ImageDiagnosticScannerProps> = ({
 
   // Voice TTS State
   const [isPlayingAudio, setIsPlayingAudio] = useState<boolean>(false);
-
-  // Benchmark Catalog
-  const [benchmarkSamples, setBenchmarkSamples] = useState<BenchmarkSampleMedia[]>([]);
-
-  // Load sample benchmarks on mount
-  useEffect(() => {
-    const loadSamples = async () => {
-      try {
-        const data = await api.fetchSampleMedia();
-        if (data && data.benchmark_images) {
-          setBenchmarkSamples(data.benchmark_images);
-        }
-      } catch (e) {
-        console.warn("Could not load sample media", e);
-      }
-    };
-    loadSamples();
-  }, []);
 
   // Cleanup camera stream on unmount
   useEffect(() => {
@@ -223,28 +201,6 @@ export const ImageDiagnosticScanner: React.FC<ImageDiagnosticScannerProps> = ({
     }, 500);
   };
 
-  // Image Upload Handler
-  const handleImageFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setSelectedFile(file);
-    const url = URL.createObjectURL(file);
-    setPreviewUrl(url);
-    setIsScanning(true);
-
-    try {
-      const res = await api.detectRoadImage(file);
-      setDiagnosticResult(res);
-      playSpeechNarration(res.recommendation || res.status_banner);
-    } catch (err) {
-      console.error("Image analysis failed:", err);
-    } finally {
-      setIsScanning(false);
-      if (e.target) e.target.value = "";
-    }
-  };
-
   // Video Upload Handler
   const handleVideoFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -265,22 +221,6 @@ export const ImageDiagnosticScanner: React.FC<ImageDiagnosticScannerProps> = ({
     } finally {
       setIsVideoScanning(false);
       if (e.target) e.target.value = "";
-    }
-  };
-
-  // Load Benchmark Sample Image
-  const handleSelectBenchmarkImage = async (sample: BenchmarkSampleMedia) => {
-    setPreviewUrl(sample.image_b64);
-    setIsScanning(true);
-
-    try {
-      const res = await api.detectLiveFrame(sample.image_b64);
-      setDiagnosticResult(res);
-      playSpeechNarration(res.recommendation || res.status_banner);
-    } catch (e) {
-      console.error("Benchmark detection failed", e);
-    } finally {
-      setIsScanning(false);
     }
   };
 
@@ -355,7 +295,7 @@ export const ImageDiagnosticScanner: React.FC<ImageDiagnosticScannerProps> = ({
       distance_m: 240,
       segment_id: "CUSTOM-MULTIMODAL-UPLOAD",
       road_name: "Multi-Modal Roadway Inspection",
-      nearby_landmark: selectedFile?.name || selectedVideoFile?.name || "Live Survey Corridor",
+      nearby_landmark: selectedVideoFile?.name || "Live Survey Corridor",
       responsible_authority: authorities[0] || "Tamil Nadu State Highways Department (TN-SHD)",
       color_hex: firstDefect?.color_hex || "#EF4444",
       impact_statement: firstDefect?.description || "Immediate cavity patch and hazard mitigation required.",
@@ -418,9 +358,8 @@ export const ImageDiagnosticScanner: React.FC<ImageDiagnosticScannerProps> = ({
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-      
+
       {/* Hidden inputs & canvas */}
-      <input type="file" ref={fileInputRef} onChange={handleImageFileChange} accept="image/*" style={{ display: "none" }} />
       <input type="file" ref={videoInputRef} onChange={handleVideoFileChange} accept="video/*" style={{ display: "none" }} />
       <canvas ref={canvasRef} style={{ display: "none" }} />
 
@@ -468,15 +407,6 @@ export const ImageDiagnosticScanner: React.FC<ImageDiagnosticScannerProps> = ({
         {/* Mode Selector Tabs */}
         <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", background: "rgba(15, 23, 42, 0.6)", padding: "4px", borderRadius: "10px", border: "1px solid var(--border-subtle)" }}>
           <button
-            className={`cyber-tab ${activeMode === "past_image" ? "active" : ""}`}
-            onClick={() => setActiveMode("past_image")}
-            style={{ padding: "8px 14px", fontSize: "0.82rem", display: "flex", alignItems: "center", gap: "6px" }}
-          >
-            <UploadCloud size={15} />
-            <span>Past Image</span>
-          </button>
-
-          <button
             className={`cyber-tab ${activeMode === "past_video" ? "active" : ""}`}
             onClick={() => setActiveMode("past_video")}
             style={{ padding: "8px 14px", fontSize: "0.82rem", display: "flex", alignItems: "center", gap: "6px" }}
@@ -522,125 +452,9 @@ export const ImageDiagnosticScanner: React.FC<ImageDiagnosticScannerProps> = ({
 
       {/* Main Multi-Modal Workspace Grid */}
       <div style={{ display: "grid", gridTemplateColumns: "1.2fr 0.8fr", gap: "20px" }}>
-        
+
         {/* Left Column: Visual Ingestion & Detection View */}
         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-          
-          {/* Mode 1: Past / Uploaded Image View */}
-          {activeMode === "past_image" && (
-            <div className="glass-panel" style={{ padding: "18px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
-                <div style={{ fontSize: "0.92rem", fontWeight: 700, color: "var(--text-primary)", display: "flex", alignItems: "center", gap: "8px" }}>
-                  <Eye size={17} color="var(--accent-cyan)" />
-                  <span>Historical &amp; Uploaded Image Ingestion</span>
-                </div>
-                <div style={{ display: "flex", gap: "8px" }}>
-                  <button
-                    className="btn btn-secondary"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={isScanning}
-                    style={{ padding: "6px 12px", fontSize: "0.8rem", display: "flex", alignItems: "center", gap: "6px" }}
-                  >
-                    <UploadCloud size={14} />
-                    <span>Upload Road Image</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Benchmark Sample Chips */}
-              <div style={{ display: "flex", gap: "8px", overflowX: "auto", paddingBottom: "10px", marginBottom: "12px" }}>
-                <span style={{ fontSize: "0.74rem", color: "var(--text-muted)", alignSelf: "center", whiteSpace: "nowrap" }}>
-                  Trained Benchmarks:
-                </span>
-                {benchmarkSamples.map((sample, idx) => (
-                  <button
-                    key={idx}
-                    className="cyber-badge"
-                    onClick={() => handleSelectBenchmarkImage(sample)}
-                    style={{
-                      cursor: "pointer",
-                      fontSize: "0.72rem",
-                      padding: "4px 10px",
-                      background: "rgba(30, 41, 59, 0.7)",
-                      border: "1px solid var(--border-subtle)",
-                      color: "var(--text-primary)",
-                      whiteSpace: "nowrap"
-                    }}
-                  >
-                    🎯 {sample.title}
-                  </button>
-                ))}
-              </div>
-
-              {/* Visual Display Container */}
-              <div
-                style={{
-                  position: "relative",
-                  width: "100%",
-                  height: "380px",
-                  background: "#050b14",
-                  borderRadius: "10px",
-                  overflow: "hidden",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  border: "1px solid var(--border-subtle)",
-                }}
-              >
-                {previewUrl ? (
-                  <img
-                    src={
-                      activeViewMode === "depth"
-                        ? diagnosticResult?.depth_heatmap_b64 || previewUrl
-                        : activeViewMode === "split"
-                        ? diagnosticResult?.side_by_side_b64 || previewUrl
-                        : activeViewMode === "raw"
-                        ? diagnosticResult?.raw_image_b64 || previewUrl
-                        : diagnosticResult?.annotated_image_b64 || previewUrl
-                    }
-                    alt="Road inspection visual"
-                    style={{ width: "100%", height: "100%", objectFit: "contain" }}
-                  />
-                ) : (
-                  <div style={{ textAlign: "center", color: "var(--text-muted)" }}>
-                    <UploadCloud size={48} style={{ opacity: 0.4, marginBottom: "10px" }} />
-                    <div style={{ fontSize: "0.9rem", fontWeight: 600 }}>No Image Loaded</div>
-                    <div style={{ fontSize: "0.78rem" }}>Upload an image or pick a benchmark from the library above.</div>
-                  </div>
-                )}
-
-                {isScanning && (
-                  <div style={{ position: "absolute", inset: 0, background: "rgba(5, 11, 20, 0.8)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "10px" }}>
-                    <RefreshCw size={32} className="spin" color="var(--accent-cyan)" />
-                    <div style={{ fontSize: "0.85rem", color: "var(--accent-cyan)", fontWeight: 700 }}>
-                      YOLOv8 + Depth Anything V2 Inference Running...
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* View Switches */}
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "12px", flexWrap: "wrap", gap: "8px" }}>
-                <div style={{ display: "flex", gap: "6px" }}>
-                  {(["annotated", "split", "raw", "depth"] as const).map((mode) => (
-                    <button
-                      key={mode}
-                      className={`cyber-badge ${activeViewMode === mode ? "badge-cyan" : ""}`}
-                      onClick={() => setActiveViewMode(mode)}
-                      style={{ cursor: "pointer", textTransform: "capitalize", padding: "5px 10px", fontSize: "0.75rem" }}
-                    >
-                      {mode === "split" ? "Split 50/50" : mode === "depth" ? "3D Turbo Depth" : mode}
-                    </button>
-                  ))}
-                </div>
-                {diagnosticResult && (
-                  <div style={{ fontSize: "0.76rem", color: "var(--accent-emerald)", fontWeight: 600 }}>
-                    ⚡ Inference: {diagnosticResult.latency_ms || 24.2}ms (41 FPS)
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
 
           {/* Mode 2: Past / Recorded Video View */}
           {activeMode === "past_video" && (
@@ -937,7 +751,7 @@ export const ImageDiagnosticScanner: React.FC<ImageDiagnosticScannerProps> = ({
 
         {/* Right Column: Autonomous Decision Verdict, BOM & Work Order */}
         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-          
+
           {/* Executive AI Agent Decision Card */}
           <div
             className="glass-panel"

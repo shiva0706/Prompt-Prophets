@@ -1,30 +1,13 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import {
-  Send,
-  Sparkles,
-  Paperclip,
   MoreVertical,
-  Navigation,
   Plus,
   Filter,
   CheckCircle2,
+  TrendingUp,
+  Sparkles,
 } from "lucide-react";
-import { api } from "../services/api";
-
-interface Message {
-  id: string;
-  sender: "user" | "copilot";
-  text: string;
-  timestamp: string;
-  data?: {
-    intent?: string;
-    segments_matched?: any[];
-    bill_of_materials?: any;
-    work_order?: any;
-    tools_called?: Array<{ tool_name: string; input_args: any; output_summary: string }>;
-    suggestions?: string[];
-  };
-}
+import { LiveGisMap } from "./LiveGisMap";
 
 interface CorridorItem {
   id: string;
@@ -133,83 +116,6 @@ export const CivilEngineeringCopilot: React.FC = () => {
   const [severityFilter, setSeverityFilter] = useState<string>("All");
   const [defectTypeFilter, setDefectTypeFilter] = useState<string>("All");
   const [activeCenterTab, setActiveCenterTab] = useState<"defect" | "activity" | "insights">("defect");
-  const [mapLayer, setMapLayer] = useState<"satellite" | "map" | "layer">("satellite");
-
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [inputValue, setInputValue] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
-
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (messages.length > 0) {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [messages, isTyping]);
-
-  const handleSendMessage = async (queryText?: string) => {
-    const textToSend = queryText || inputValue;
-    if (!textToSend.trim() || isTyping) return;
-
-    const userMsg: Message = {
-      id: `usr-${Date.now()}`,
-      sender: "user",
-      text: textToSend,
-      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-    };
-
-    setMessages((prev) => [...prev, userMsg]);
-    setInputValue("");
-    setIsTyping(true);
-
-    try {
-      const response = await api.queryCopilot(textToSend, {
-        selected_corridor: selectedCorridor,
-      });
-
-      const copilotMsg: Message = {
-        id: `cop-${Date.now()}`,
-        sender: "copilot",
-        text: response.response_text,
-        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-        data: {
-          intent: response.intent,
-          segments_matched: response.segments_matched,
-          bill_of_materials: response.bill_of_materials,
-          work_order: response.work_order,
-          tools_called: response.tools_called,
-          suggestions: response.suggestions,
-        },
-      };
-
-      setMessages((prev) => [...prev, copilotMsg]);
-    } catch {
-      const fallbackMsg: Message = {
-        id: `cop-fb-${Date.now()}`,
-        sender: "copilot",
-        text: `Analysis for ${selectedCorridor}: 2 critical depressions identified between Km 537 - 542 with IRI 4.8 m/km. Recommended immediate hot-mix asphalt patching (VG-30, MoRTH Sec 500). Estimated repair budget: ₹1,42,000 INR.`,
-        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-        data: {
-          work_order: {
-            work_order_id: "WO-NH44-1024",
-            title: `Emergency Pavement Rehabilitation (${selectedCorridor})`,
-            jurisdiction_authority: "NHAI Project Implementation Unit - Salem/Erode",
-            bill_of_materials: {
-              total_cost_inr: 142000,
-            },
-          },
-        },
-      };
-      setMessages((prev) => [...prev, fallbackMsg]);
-    } finally {
-      setIsTyping(false);
-    }
-  };
-
-  const handleResetChat = () => {
-    setMessages([]);
-    setInputValue("");
-  };
 
   const filteredCorridors = INITIAL_CORRIDORS.filter((c) => {
     const matchesSearch =
@@ -217,6 +123,12 @@ export const CivilEngineeringCopilot: React.FC = () => {
       c.state.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesSeverity = severityFilter === "All" || c.severity === severityFilter;
     return matchesSearch && matchesSeverity;
+  });
+
+  const filteredDefects = RECENT_DEFECTS_DATA.filter((d) => {
+    const matchesDefectType = defectTypeFilter === "All" || d.defectType === defectTypeFilter;
+    const matchesSeverity = severityFilter === "All" || d.severity === severityFilter;
+    return matchesDefectType && matchesSeverity;
   });
 
   return (
@@ -233,7 +145,6 @@ export const CivilEngineeringCopilot: React.FC = () => {
             </span>
             <button
               className="primary"
-              onClick={() => handleSendMessage("Register new highway corridor for AI inspection")}
               title="Add a new corridor to monitoring roster"
             >
               <Plus size={13} style={{ display: "inline", marginRight: "3px" }} />
@@ -340,244 +251,89 @@ export const CivilEngineeringCopilot: React.FC = () => {
       </aside>
 
       {/* ======================================================== */}
-      {/* CENTER COLUMN: REFINED CHAT, METRICS, TABS, CHARTS        */}
+      {/* CENTER COLUMN: KPIS, CHARTS, DEFECTS TABLE (CHAT REMOVED)*/}
       {/* ======================================================== */}
-      <main>
-        {/* Refined AI Engineering Copilot Card */}
-        <section className="card chat" style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-          {/* Header Bar inside Chat Card */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              borderBottom: "1px solid var(--line)",
-              paddingBottom: "12px",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <div
-                style={{
-                  width: "32px",
-                  height: "32px",
-                  borderRadius: "8px",
-                  background: "linear-gradient(135deg, #2463eb 0%, #1d4ed8 100%)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "#ffffff",
-                  fontWeight: 800,
-                  fontSize: "15px",
-                }}
-              >
-                ♙
-              </div>
-              <div>
-                <div style={{ fontSize: "16px", fontWeight: 800, color: "var(--ink)", display: "flex", alignItems: "center", gap: "8px" }}>
-                  <span>AI Engineering Copilot</span>
-                  <span
-                    style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: "4px",
-                      background: "rgba(36, 99, 235, 0.08)",
-                      color: "#2463eb",
-                      padding: "2px 8px",
-                      borderRadius: "12px",
-                      fontSize: "11px",
-                      fontWeight: 700,
-                    }}
-                  >
-                    <Sparkles size={11} />
-                    Autonomous Work-Order Agent
-                  </span>
-                </div>
-                <div style={{ fontSize: "12px", color: "var(--muted)", marginTop: "2px" }}>
-                  Active Corridor: <strong>{selectedCorridor}</strong> • MoRTH &amp; IRC Standards Compliant
-                </div>
-              </div>
-            </div>
-
-            <button
-              onClick={handleResetChat}
-              className="primary"
-              style={{
-                background: "#f1f5f9",
-                color: "#334155",
-                border: "1px solid #cbd5e1",
-                padding: "6px 12px",
-                fontSize: "12px",
-                fontWeight: 700,
-                borderRadius: "6px",
-              }}
-              title="Reset conversation"
-            >
-              ⟳ Reset Chat
-            </button>
-          </div>
-
-          {/* Bot Greeting Content */}
-          <div style={{ display: "flex", gap: "16px", alignItems: "flex-start" }}>
-            <div className="bot">♙</div>
-            <div style={{ flex: 1 }}>
-              <h2>Hello! I'm your AI Civil Engineering Copilot &amp; Autonomous Work-Order Agent.</h2>
-              <p>
-                I can help you with road and pavement defect analysis, work-order generation, authority dispatch, and
-                maintenance planning using satellite imagery, GIS data and real-time measurements.
-              </p>
-              <div className="try">Try asking:</div>
-              <div className="prompts">
-                {[
-                  "Show NH-44 critical sections",
-                  "Summarize defects in this corridor",
-                  "Create work order for Km 537-542",
-                  "Analyze pavement condition",
-                ].map((chip) => (
-                  <span
-                    key={chip}
-                    className="prompt"
-                    onClick={() => handleSendMessage(chip)}
-                  >
-                    {chip}
-                  </span>
-                ))}
-              </div>
-            </div>
-            <span className="time">11:42 AM</span>
-          </div>
-
-          {/* Dynamic Chat Messages Stream */}
-          {messages.length > 0 && (
+      <main style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+        {/* Active Corridor Dashboard Header Banner */}
+        <div
+          style={{
+            background: "#ffffff",
+            border: "1px solid var(--line)",
+            borderRadius: "14px",
+            padding: "16px 20px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            boxShadow: "0 2px 6px #113e7a0a",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
             <div
               style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "12px",
-                maxHeight: "340px",
-                overflowY: "auto",
-                padding: "10px 4px 4px",
-                borderTop: "1px solid #f1f5f9",
-              }}
-            >
-              {messages.map((msg) => (
-                <div
-                  key={msg.id}
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: msg.sender === "user" ? "flex-end" : "flex-start",
-                    gap: "4px",
-                  }}
-                >
-                  <div
-                    style={{
-                      maxWidth: "85%",
-                      padding: "12px 16px",
-                      borderRadius: msg.sender === "user" ? "14px 14px 2px 14px" : "14px 14px 14px 2px",
-                      background: msg.sender === "user" ? "var(--blue)" : "#f8fafc",
-                      color: msg.sender === "user" ? "#ffffff" : "var(--ink)",
-                      border: msg.sender === "user" ? "none" : "1px solid var(--line)",
-                      boxShadow: "0 1px 3px rgba(17, 62, 122, 0.04)",
-                      fontSize: "13.5px",
-                      lineHeight: 1.5,
-                    }}
-                  >
-                    <div style={{ whiteSpace: "pre-wrap" }}>{msg.text}</div>
-
-                    {msg.data?.work_order && (
-                      <div
-                        style={{
-                          marginTop: "10px",
-                          padding: "10px 14px",
-                          borderRadius: "8px",
-                          background: "#fef2f2",
-                          border: "1px solid #fecaca",
-                        }}
-                      >
-                        <div style={{ fontWeight: 800, color: "#dc2626", fontSize: "13px", marginBottom: "4px" }}>
-                          📄 {msg.data.work_order.title}
-                        </div>
-                        <div style={{ fontSize: "12px", color: "#475569" }}>
-                          Ticket: <strong>{msg.data.work_order.work_order_id}</strong> • Est. Budget: ₹
-                          {msg.data.work_order.bill_of_materials.total_cost_inr.toLocaleString("en-IN")} INR
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  <span style={{ fontSize: "11px", color: "#96a8c5", padding: "0 4px" }}>{msg.timestamp}</span>
-                </div>
-              ))}
-              {isTyping && (
-                <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "var(--blue)", fontSize: "13px", padding: "4px" }}>
-                  <span className="animate-spin">⟳</span>
-                  <span>AI Engineering Copilot is analyzing road telemetry...</span>
-                </div>
-              )}
-              <div ref={messagesEndRef} />
-            </div>
-          )}
-
-          {/* Interactive Chat Input Pill */}
-          <div
-            style={{
-              background: "#ffffff",
-              borderRadius: "30px",
-              border: "1.5px solid var(--line)",
-              boxShadow: "0 2px 8px rgba(17, 62, 122, 0.05)",
-              padding: "6px 14px",
-              display: "flex",
-              alignItems: "center",
-              gap: "10px",
-              marginTop: "4px",
-            }}
-          >
-            <Sparkles size={17} color="#2463eb" />
-            <input
-              type="text"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
-              placeholder="Ask anything about road conditions, defects, work orders or maintenance analysis..."
-              style={{
-                flex: 1,
-                border: "none",
-                outline: "none",
-                fontSize: "13.5px",
-                color: "var(--ink)",
-                background: "transparent",
-              }}
-            />
-            <button
-              title="Attach defect telemetry or photo"
-              style={{ background: "transparent", border: "none", color: "#91a5c5", cursor: "pointer", display: "flex", alignItems: "center" }}
-            >
-              <Paperclip size={17} />
-            </button>
-            <button
-              onClick={() => handleSendMessage()}
-              disabled={!inputValue.trim() || isTyping}
-              style={{
-                width: "34px",
-                height: "34px",
-                borderRadius: "50%",
-                background: "var(--blue)",
-                border: "none",
-                color: "#ffffff",
+                width: "42px",
+                height: "42px",
+                borderRadius: "10px",
+                background: "linear-gradient(135deg, #2463eb 0%, #1d4ed8 100%)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                cursor: inputValue.trim() ? "pointer" : "default",
-                opacity: inputValue.trim() ? 1 : 0.6,
-                transition: "all 0.15s ease",
+                color: "#ffffff",
+                fontWeight: 800,
+                fontSize: "18px",
+                boxShadow: "0 2px 8px rgba(36, 99, 235, 0.3)",
               }}
             >
-              <Send size={14} />
-            </button>
+              ♙
+            </div>
+            <div>
+              <div style={{ fontSize: "17px", fontWeight: 800, color: "var(--ink)", display: "flex", alignItems: "center", gap: "8px" }}>
+                <span>Civil Engineering Telemetry &amp; Defect Studio</span>
+                <span
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "4px",
+                    background: "rgba(36, 99, 235, 0.08)",
+                    color: "#2463eb",
+                    padding: "3px 9px",
+                    borderRadius: "12px",
+                    fontSize: "11px",
+                    fontWeight: 700,
+                  }}
+                >
+                  <Sparkles size={11} />
+                  Autonomous Inspection
+                </span>
+              </div>
+              <div style={{ fontSize: "12.5px", color: "var(--muted)", marginTop: "3px" }}>
+                Monitoring Corridor: <strong style={{ color: "var(--ink)" }}>{selectedCorridor}</strong> • Real-time IRC:SP:20 &amp; MoRTH Sec 500 Standards
+              </div>
+            </div>
           </div>
-        </section>
+
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <span
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "5px",
+                background: "#f0fdf4",
+                color: "#16a34a",
+                border: "1px solid #bbf7d0",
+                padding: "4px 10px",
+                borderRadius: "14px",
+                fontSize: "12px",
+                fontWeight: 700,
+              }}
+            >
+              <CheckCircle2 size={13} color="#16a34a" />
+              Sensor Online
+            </span>
+          </div>
+        </div>
 
         {/* 4 Metric KPI Cards */}
-        <section className="metrics">
+        <section className="metrics" style={{ marginTop: 0 }}>
           {/* Card 1: Pavement Condition */}
           <article className="card metric">
             <h3>
@@ -660,17 +416,12 @@ export const CivilEngineeringCopilot: React.FC = () => {
               <span style={{ color: "#8ba0c1", fontWeight: 400 }}>›</span>
             </h3>
             <div className="value">5</div>
-            <div
-              className="open"
-              onClick={() => handleSendMessage(`Show open work orders for ${selectedCorridor}`)}
-            >
-              Open &gt;
-            </div>
+            <div className="open">Open &gt;</div>
           </article>
         </section>
 
         {/* Tabs Bar: Defect Analysis / Recent Activity / AI Insights */}
-        <div className="tabs">
+        <div className="tabs" style={{ marginTop: "2px" }}>
           <button
             className={activeCenterTab === "defect" ? "chosen" : ""}
             onClick={() => setActiveCenterTab("defect")}
@@ -694,7 +445,7 @@ export const CivilEngineeringCopilot: React.FC = () => {
         {/* Tab 1 View: Defect Analysis Charts & Table */}
         {activeCenterTab === "defect" && (
           <>
-            <section className="charts">
+            <section className="charts" style={{ marginTop: "8px" }}>
               {/* Defect Distribution Donut Chart with SVG and Flex Legend */}
               <article className="card chart" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
                 <h3 style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -846,7 +597,6 @@ export const CivilEngineeringCopilot: React.FC = () => {
                   Recent Defects - {selectedCorridor}
                 </span>
                 <span
-                  onClick={() => handleSendMessage(`Show all defects registered on ${selectedCorridor}`)}
                   style={{ fontSize: "13px", color: "var(--blue)", fontWeight: 700, cursor: "pointer" }}
                 >
                   View All Defects &gt;
@@ -867,7 +617,7 @@ export const CivilEngineeringCopilot: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {RECENT_DEFECTS_DATA.map((row) => (
+                    {filteredDefects.map((row) => (
                       <tr
                         key={row.id}
                         style={{ borderBottom: "1px solid #f1f5f9", transition: "background 0.1s ease" }}
@@ -927,10 +677,9 @@ export const CivilEngineeringCopilot: React.FC = () => {
                         <td style={{ padding: "12px" }}>
                           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                             <span
-                              onClick={() => handleSendMessage(`Inspect defect ${row.id} on ${selectedCorridor}`)}
                               style={{ color: "var(--blue)", fontWeight: 700, cursor: "pointer" }}
                             >
-                              View
+                              Inspect
                             </span>
                             <MoreVertical size={14} color="#94a3b8" style={{ cursor: "pointer" }} />
                           </div>
@@ -946,15 +695,15 @@ export const CivilEngineeringCopilot: React.FC = () => {
 
         {/* Tab 2 View: Recent Activity */}
         {activeCenterTab === "activity" && (
-          <section className="card" style={{ padding: "22px", marginTop: "16px" }}>
+          <section className="card" style={{ padding: "22px" }}>
             <h3 style={{ margin: "0 0 16px 0", fontSize: "16px", fontWeight: 800 }}>Recent Highway Activity</h3>
             <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
               {[
-                { text: `Analysis completed for ${selectedCorridor}`, time: "11:58 AM", color: "#10b981" },
-                { text: "Work order #WO-1024 created (Km 537-542)", time: "11:42 AM", color: "#ef4444" },
+                { text: `Continuous telemetry sync active for ${selectedCorridor}`, time: "11:58 AM", color: "#10b981" },
+                { text: "Work order #WO-1024 auto-dispatched (Km 537-542)", time: "11:42 AM", color: "#ef4444" },
                 { text: "Authority dispatch team notified (MoRTH Salem Zone)", time: "11:28 AM", color: "#2563eb" },
                 { text: "Data sync with MoRTH GIS server completed", time: "10:16 AM", color: "#2563eb" },
-                { text: "New defect detected (Pavement Rutting 3.8cm)", time: "09:34 AM", color: "#ef4444" },
+                { text: "New defect localized (Pavement Rutting 3.8cm)", time: "09:34 AM", color: "#ef4444" },
               ].map((act, index) => (
                 <div
                   key={index}
@@ -979,7 +728,7 @@ export const CivilEngineeringCopilot: React.FC = () => {
 
         {/* Tab 3 View: AI Insights */}
         {activeCenterTab === "insights" && (
-          <section className="card" style={{ padding: "22px", marginTop: "16px" }}>
+          <section className="card" style={{ padding: "22px" }}>
             <h3 style={{ margin: "0 0 16px 0", fontSize: "16px", fontWeight: 800 }}>Autonomous Engineering Insights</h3>
             <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
               <div style={{ background: "#f8fafc", border: "1px solid var(--line)", borderRadius: "10px", padding: "14px 18px" }}>
@@ -1000,66 +749,17 @@ export const CivilEngineeringCopilot: React.FC = () => {
       </main>
 
       {/* ======================================================== */}
-      {/* RIGHT COLUMN: REFINED GIS MAP & QUICK INSIGHTS           */}
+      {/* RIGHT COLUMN: REAL LEAFLET GIS MAP & TELEMETRY           */}
       {/* ======================================================== */}
       <aside className="right">
-        {/* GIS Map Card */}
-        <section className="card mapcard">
-          <div className="map-title">
-            <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <Navigation size={16} color="#2463eb" />
-              <span>GIS Map - {selectedCorridor}</span>
-            </span>
-            <div style={{ display: "flex", background: "#f1f5f9", borderRadius: "6px", padding: "2px" }}>
-              {(["satellite", "map", "layer"] as const).map((layer) => (
-                <button
-                  key={layer}
-                  onClick={() => setMapLayer(layer)}
-                  style={{
-                    padding: "3px 8px",
-                    border: "none",
-                    borderRadius: "4px",
-                    cursor: "pointer",
-                    fontSize: "11px",
-                    fontWeight: mapLayer === layer ? 700 : 500,
-                    background: mapLayer === layer ? "#091426" : "transparent",
-                    color: mapLayer === layer ? "#ffffff" : "#61799c",
-                    textTransform: "capitalize",
-                    transition: "all 0.15s ease",
-                  }}
-                >
-                  {layer}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="map">
-            <b className="maptag">➤ {selectedCorridor}</b>
-            <i className="route"></i>
-            <span className="mark red">
-              Km 537 - 542<small>Critical</small>
-            </span>
-            <span className="mark orange">
-              Km 541 - 426<small>Moderate</small>
-            </span>
-            <span className="mark green">
-              Km 548 - 552<small>Healthy</small>
-            </span>
-            <span className="place p1">Perundurai</span>
-            <span className="place p2">Erode</span>
-            <div className="zoom">
-              <button onClick={() => handleSendMessage(`Zoom into critical segment on ${selectedCorridor}`)}>+</button>
-              <button>−</button>
-            </div>
-          </div>
-        </section>
+        {/* Real Live Leaflet GIS Map with Satellite / Street / Dark Layers */}
+        <LiveGisMap selectedCorridor={selectedCorridor} />
 
         {/* Quick Insights Card */}
         <section className="card insights">
           <div className="panel-head">
             <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <Sparkles size={16} color="#2463eb" />
+              <TrendingUp size={16} color="#2463eb" />
               <span>Quick Insights</span>
             </span>
             <span className="link" onClick={() => setActiveCenterTab("insights")}>

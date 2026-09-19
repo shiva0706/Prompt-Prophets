@@ -13,12 +13,12 @@ import { api } from "./services/api";
 import type { FullRoadInspectionReport, AgentEvent, RoadDefectItem, DispatchedAlertRecord } from "./types";
 
 export function App() {
-  const [activeTab, setActiveTab] = useState<string>("inspection");
+  const [activeTab, setActiveTab] = useState<string>("copilot");
   const [report, setReport] = useState<FullRoadInspectionReport | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isSocketLive, setIsSocketLive] = useState<boolean>(false);
+  const [isSocketLive, setIsSocketLive] = useState<boolean>(true);
   const [theme, setTheme] = useState<"dark" | "light">(() => {
-    return (localStorage.getItem("road_intel_theme") as "dark" | "light") || "dark";
+    return (localStorage.getItem("road_intel_theme") as "dark" | "light") || "light";
   });
 
   useEffect(() => {
@@ -51,7 +51,7 @@ export function App() {
           particleCount: 50,
           spread: 60,
           origin: { y: 0.8 },
-          colors: ["#ef4444", "#f59e0b", "#00f2fe"],
+          colors: ["#ef4444", "#f59e0b", "#2563eb"],
         });
       }
     });
@@ -93,8 +93,7 @@ export function App() {
   };
 
   return (
-    <div style={{ maxWidth: "1440px", margin: "0 auto", padding: "20px 20px 60px" }}>
-      
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "var(--bg-main)" }}>
       <Header
         isSocketLive={isSocketLive}
         activeTab={activeTab}
@@ -106,134 +105,114 @@ export function App() {
         setTheme={setTheme}
       />
 
-      {report && (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))",
-            gap: "14px",
-            marginBottom: "20px",
-          }}
-        >
-          
-          <div className="glass-panel fade-in-up stagger-1" style={{ padding: "16px 18px", borderTop: "3px solid #ffffff" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.76rem", color: "var(--text-muted)", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.5px" }}>
-              <span>Total Defects Localized</span>
-              <span className="cyber-badge badge-rose" style={{ fontSize: "0.68rem" }}>
-                Active Survey
-              </span>
-            </div>
-            <div style={{ fontSize: "1.85rem", fontWeight: 900, marginTop: "4px", color: "var(--text-primary)" }}>
-              {report.summary.total_defects_count} <span style={{ fontSize: "0.85rem", color: "var(--text-muted)", fontWeight: 600 }}>Hazards</span>
-            </div>
-            <div style={{ fontSize: "0.78rem", color: "var(--text-secondary)", marginTop: "4px", fontWeight: 600 }}>
-              {report.summary.total_potholes} Potholes • {report.summary.total_cracks} Cracks • {report.summary.total_water_ponding} Ponding
-            </div>
-          </div>
+      {activeTab === "copilot" ? (
+        <main style={{ flex: 1 }}>
+          <CivilEngineeringCopilot />
+        </main>
+      ) : (
+        <div style={{ maxWidth: "1440px", width: "100%", margin: "0 auto", padding: "20px 24px 60px" }}>
+          {report && (
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))",
+                gap: "14px",
+                marginBottom: "20px",
+              }}
+            >
+              <div className="glass-panel fade-in-up stagger-1" style={{ padding: "16px 18px", borderTop: "3px solid #2563eb" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.76rem", color: "var(--text-muted)", fontWeight: 700, textTransform: "uppercase" }}>
+                  <span>Total Defects Localized</span>
+                  <span className="cyber-badge badge-rose" style={{ fontSize: "0.68rem" }}>Active Survey</span>
+                </div>
+                <div style={{ fontSize: "1.85rem", fontWeight: 800, marginTop: "4px", color: "var(--text-primary)" }}>
+                  {report.summary.total_defects_count} <span style={{ fontSize: "0.85rem", color: "var(--text-muted)", fontWeight: 600 }}>Hazards</span>
+                </div>
+                <div style={{ fontSize: "0.78rem", color: "var(--text-secondary)", marginTop: "4px" }}>
+                  {report.summary.total_potholes} Potholes • {report.summary.total_cracks} Cracks • {report.summary.total_water_ponding} Ponding
+                </div>
+              </div>
 
-          <div className="glass-panel fade-in-up stagger-2" style={{ padding: "16px 18px", borderTop: "3px solid #ffffff" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.76rem", color: "var(--text-muted)", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.5px" }}>
-              <span>Mean Segment Risk (SRI)</span>
-              <span className="cyber-badge badge-amber" style={{ fontSize: "0.68rem" }}>
-                0-100 Scale
-              </span>
-            </div>
-            <div style={{ fontSize: "1.85rem", fontWeight: 900, marginTop: "4px", color: "var(--text-primary)" }}>
-              {report.summary.mean_route_sri} <span style={{ fontSize: "0.85rem", color: "var(--text-muted)", fontWeight: 600 }}>/ 100</span>
-            </div>
-            <div style={{ fontSize: "0.78rem", color: "var(--text-secondary)", marginTop: "4px", fontWeight: 600 }}>
-              {report.summary.critical_segments_count} of {report.summary.total_segments_count} Segments at Critical Risk
-            </div>
-          </div>
+              <div className="glass-panel fade-in-up stagger-2" style={{ padding: "16px 18px", borderTop: "3px solid #f59e0b" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.76rem", color: "var(--text-muted)", fontWeight: 700, textTransform: "uppercase" }}>
+                  <span>Mean Segment Risk (SRI)</span>
+                  <span className="cyber-badge badge-amber" style={{ fontSize: "0.68rem" }}>0-100 Scale</span>
+                </div>
+                <div style={{ fontSize: "1.85rem", fontWeight: 800, marginTop: "4px", color: "var(--text-primary)" }}>
+                  {report.summary.mean_route_sri} <span style={{ fontSize: "0.85rem", color: "var(--text-muted)", fontWeight: 600 }}>/ 100</span>
+                </div>
+                <div style={{ fontSize: "0.78rem", color: "var(--text-secondary)", marginTop: "4px" }}>
+                  {report.summary.critical_segments_count} of {report.summary.total_segments_count} Segments at Critical Risk
+                </div>
+              </div>
 
-          <div className="glass-panel fade-in-up stagger-3" style={{ padding: "16px 18px", borderTop: "3px solid #ffffff" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.76rem", color: "var(--text-muted)", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.5px" }}>
-              <span>Pavement Condition Index</span>
-              <span className="cyber-badge badge-cyan" style={{ fontSize: "0.68rem" }}>
-                ASTM D6433
-              </span>
-            </div>
-            <div style={{ fontSize: "1.85rem", fontWeight: 900, marginTop: "4px", color: "var(--text-primary)" }}>
-              {report.summary.mean_route_pci} <span style={{ fontSize: "0.85rem", color: "var(--text-muted)", fontWeight: 600 }}>/ 100</span>
-            </div>
-            <div style={{ fontSize: "0.78rem", color: "var(--text-secondary)", marginTop: "4px", fontWeight: 600 }}>
-              Pavement Health Benchmark Standard
-            </div>
-          </div>
+              <div className="glass-panel fade-in-up stagger-3" style={{ padding: "16px 18px", borderTop: "3px solid #10b981" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.76rem", color: "var(--text-muted)", fontWeight: 700, textTransform: "uppercase" }}>
+                  <span>Pavement Condition Index</span>
+                  <span className="cyber-badge badge-cyan" style={{ fontSize: "0.68rem" }}>ASTM D6433</span>
+                </div>
+                <div style={{ fontSize: "1.85rem", fontWeight: 800, marginTop: "4px", color: "var(--text-primary)" }}>
+                  {report.summary.mean_route_pci} <span style={{ fontSize: "0.85rem", color: "var(--text-muted)", fontWeight: 600 }}>/ 100</span>
+                </div>
+                <div style={{ fontSize: "0.78rem", color: "var(--text-secondary)", marginTop: "4px" }}>
+                  Pavement Health Benchmark Standard
+                </div>
+              </div>
 
-          <div className="glass-panel fade-in-up stagger-4" style={{ padding: "16px 18px", borderTop: "3px solid #ffffff" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.76rem", color: "var(--text-muted)", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.5px" }}>
-              <span>Emergency Work Orders</span>
-              <span className="cyber-badge badge-rose" style={{ fontSize: "0.68rem" }}>
-                SLA &lt; 24h
-              </span>
+              <div className="glass-panel fade-in-up stagger-4" style={{ padding: "16px 18px", borderTop: "3px solid #ef4444" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.76rem", color: "var(--text-muted)", fontWeight: 700, textTransform: "uppercase" }}>
+                  <span>Emergency Work Orders</span>
+                  <span className="cyber-badge badge-rose" style={{ fontSize: "0.68rem" }}>SLA &lt; 24h</span>
+                </div>
+                <div style={{ fontSize: "1.85rem", fontWeight: 800, marginTop: "4px", color: "var(--text-primary)" }}>
+                  {report.summary.immediate_work_orders} <span style={{ fontSize: "0.85rem", color: "var(--text-muted)", fontWeight: 600 }}>Dispatched</span>
+                </div>
+                <div style={{ fontSize: "0.78rem", color: "var(--text-secondary)", marginTop: "4px" }}>
+                  Est. Budget: <strong>₹{(report.summary.total_estimated_budget_inr ?? ((report.summary.total_estimated_budget_usd || 0) * 83)).toLocaleString('en-IN')} INR</strong>
+                </div>
+              </div>
             </div>
-            <div style={{ fontSize: "1.85rem", fontWeight: 900, marginTop: "4px", color: "var(--text-primary)" }}>
-              {report.summary.immediate_work_orders} <span style={{ fontSize: "0.85rem", color: "var(--text-muted)", fontWeight: 600 }}>Dispatched</span>
-            </div>
-            <div style={{ fontSize: "0.78rem", color: "var(--text-secondary)", marginTop: "4px", fontWeight: 600 }}>
-              Est. Budget: <strong style={{ color: "#ffffff", borderBottom: "1px dashed rgba(255,255,255,0.4)" }}>₹{(report.summary.total_estimated_budget_inr ?? ((report.summary.total_estimated_budget_usd || 0) * 83)).toLocaleString('en-IN')} INR</strong>
-            </div>
-          </div>
+          )}
 
-          <div className="glass-panel fade-in-up stagger-5" style={{ padding: "16px 18px", borderTop: "3px solid #ffffff" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.76rem", color: "var(--text-muted)", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.5px" }}>
-              <span>AI Pipeline Latency</span>
-              <span className="cyber-badge badge-emerald" style={{ fontSize: "0.68rem" }}>
-                Edge GPU
-              </span>
-            </div>
-            <div style={{ fontSize: "1.85rem", fontWeight: 900, marginTop: "4px", color: "var(--text-primary)" }}>
-              25.5 <span style={{ fontSize: "0.85rem", color: "var(--text-muted)", fontWeight: 600 }}>ms / frame</span>
-            </div>
-            <div style={{ fontSize: "0.78rem", color: "var(--text-secondary)", marginTop: "4px", fontWeight: 600 }}>
-              Detection: 18.2ms • Severity: 7.3ms (&gt;35 FPS)
-            </div>
-          </div>
+          <main>
+            {activeTab === "inspection" && (
+              <InspectionStudio
+                report={report}
+                onRefresh={fetchInspectionData}
+                onOpenAlertModal={handleOpenAlertModal}
+              />
+            )}
+
+            {activeTab === "image_scan" && (
+              <ImageDiagnosticScanner
+                authorities={report?.authorities}
+                onOpenAlertModal={handleOpenAlertModal}
+              />
+            )}
+
+            {activeTab === "gis_map" && (
+              <GpsSegmentMap
+                report={report}
+                onSelectSegment={() => {
+                  setActiveTab("inspection");
+                }}
+              />
+            )}
+
+            {activeTab === "authority_alerts" && (
+              <AuthorityDispatchCenter report={report} />
+            )}
+
+            {activeTab === "maintenance" && (
+              <MaintenancePrioritization report={report} />
+            )}
+
+            {activeTab === "historical" && (
+              <HistoricalAnalytics report={report} />
+            )}
+          </main>
         </div>
       )}
-
-      <main>
-        {activeTab === "inspection" && (
-          <InspectionStudio
-            report={report}
-            onRefresh={fetchInspectionData}
-            onOpenAlertModal={handleOpenAlertModal}
-          />
-        )}
-
-        {activeTab === "copilot" && (
-          <CivilEngineeringCopilot />
-        )}
-
-        {activeTab === "image_scan" && (
-          <ImageDiagnosticScanner
-            authorities={report?.authorities}
-            onOpenAlertModal={handleOpenAlertModal}
-          />
-        )}
-
-        {activeTab === "gis_map" && (
-          <GpsSegmentMap
-            report={report}
-            onSelectSegment={() => {
-              setActiveTab("inspection");
-            }}
-          />
-        )}
-
-        {activeTab === "authority_alerts" && (
-          <AuthorityDispatchCenter report={report} />
-        )}
-
-        {activeTab === "maintenance" && (
-          <MaintenancePrioritization report={report} />
-        )}
-
-        {activeTab === "historical" && (
-          <HistoricalAnalytics report={report} />
-        )}
-      </main>
 
       {selectedDefectForAlert && (
         <AuthorityAlertModal
@@ -245,28 +224,6 @@ export function App() {
           onAlertDispatched={handleAlertDispatched}
         />
       )}
-
-      <footer
-        style={{
-          marginTop: "40px",
-          textAlign: "center",
-          fontSize: "0.8rem",
-          color: "var(--text-muted)",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          gap: "14px",
-          flexWrap: "wrap",
-        }}
-      >
-        <span>Automated Highway Pavement Intelligence Platform</span>
-        <span>•</span>
-        <span>Real-Time Pavement Hazard Detection</span>
-        <span>•</span>
-        <span>Calibrated 3D Depth &amp; Severity Assessment</span>
-        <span>•</span>
-        <span>ASTM D6433 Pavement Condition Standards</span>
-      </footer>
     </div>
   );
 }

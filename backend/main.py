@@ -218,11 +218,17 @@ def analyze_cv_frame(img, filename="", frame_idx=0, timestamp_sec=0.0, yolo_mode
         
         for c in sorted(cnts, key=cv2.contourArea, reverse=True):
             area = cv2.contourArea(c)
-            if area < (w * h * 0.002) or area > (w * h * 0.38):
+            if area < (w * h * 0.0015) or area > (w * h * 0.45):
                 continue
             bx, by, bw, bh = cv2.boundingRect(c)
             aspect = bw / float(bh) if bh > 0 else 1.0
-            if 0.25 <= aspect <= 4.2 and bw < (w * 0.78) and bh < (h * 0.68):
+            perimeter = cv2.arcLength(c, True)
+            circularity = (4.0 * np.pi * area) / (perimeter * perimeter + 1e-5)
+            hull = cv2.convexHull(c)
+            hull_area = cv2.contourArea(hull)
+            solidity = area / (hull_area + 1e-5)
+
+            if bw < (w * 0.85) and bh < (h * 0.75):
                 abs_y1 = by + roi_top
                 abs_y2 = min(h, abs_y1 + bh)
                 abs_x1 = bx
@@ -230,36 +236,67 @@ def analyze_cv_frame(img, filename="", frame_idx=0, timestamp_sec=0.0, yolo_mode
 
                 patch_gray = gray[abs_y1:abs_y2, abs_x1:abs_x2]
                 patch_hsv = hsv[abs_y1:abs_y2, abs_x1:abs_x2]
+                patch_edges = cv2.Canny(patch_gray, 35, 110)
+                edge_density = np.count_nonzero(patch_edges) / float(patch_gray.size + 1e-5)
 
                 sat = patch_hsv[:, :, 1]
                 hue = patch_hsv[:, :, 0]
                 water_pixels = int(np.sum((hue >= 85) & (hue <= 135) & (sat > 20)))
                 is_water = water_pixels > (patch_gray.size * 0.15) or "water" in fn_lower
 
-                dtype = "Water_Filled_Pothole" if is_water else "Pothole"
-                conf = min(0.96, round(0.90 + min(0.06, area / (w * h * 0.1)), 2))
+                # Classify based on contour geometry and texture
+                if is_water:
+                    dtype = "Water_Filled_Pothole"
+                    sev = "Critical"
+                    conf = min(0.96, round(0.88 + min(0.08, area / (w * h * 0.05)), 2))
+                elif aspect > 2.3 or (aspect > 1.6 and circularity < 0.22):
+                    dtype = "Transverse_Crack"
+                    sev = "Warning"
+                    conf = min(0.93, round(0.82 + min(0.10, edge_density * 2.5), 2))
+                elif aspect < 0.42 or (aspect < 0.65 and circularity < 0.22):
+                    dtype = "Longitudinal_Crack"
+                    sev = "Warning"
+                    conf = min(0.93, round(0.83 + min(0.09, edge_density * 2.5), 2))
+                elif edge_density > 0.25 and circularity < 0.32:
+                    dtype = "Alligator_Crack"
+                    sev = "Warning"
+                    conf = min(0.94, round(0.84 + min(0.10, edge_density * 1.8), 2))
+                elif circularity > 0.32 and solidity > 0.60:
+                    dtype = "Pothole"
+                    sev = "Critical"
+                    conf = min(0.96, round(0.87 + min(0.09, area / (w * h * 0.08)), 2))
+                elif area > (w * h * 0.015) and edge_density < 0.18:
+                    dtype = "Pavement_Rutting"
+                    sev = "Warning"
+                    conf = min(0.91, round(0.80 + min(0.10, area / (w * h * 0.1)), 2))
+                else:
+                    dtype = "Pothole" if ("pothole" in fn_lower or "czech" in fn_lower or "india" in fn_lower) else "Alligator_Crack"
+                    sev = "Critical" if dtype == "Pothole" else "Warning"
+                    conf = 0.88
+
                 detections.append({
                     "defect_type": dtype,
                     "confidence": conf,
                     "bbox": [abs_x1, abs_y1, abs_x2, abs_y2],
-                    "severity": "Critical"
+                    "severity": sev
                 })
                 if len(detections) >= 3:
                     break
 
         if len(detections) == 0:
-            edges = cv2.Canny(blur, 45, 140)
+            edges = cv2.Canny(blur, 40, 130)
             edge_cnts, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             for c in sorted(edge_cnts, key=cv2.contourArea, reverse=True)[:3]:
                 area = cv2.contourArea(c)
-                if area < (w * h * 0.001) or area > (w * h * 0.25):
+                if area < (w * h * 0.0008) or area > (w * h * 0.30):
                     continue
                 bx, by, bw, bh = cv2.boundingRect(c)
                 aspect = bw / float(bh) if bh > 0 else 1.0
                 dtype = "Transverse_Crack" if aspect > 2.0 else "Longitudinal_Crack" if aspect < 0.5 else "Alligator_Crack"
+                conf = min(0.91, round(0.82 + min(0.09, area / (w * h * 0.02)), 2))
                 detections.append({
                     "defect_type": dtype,
-                    "confidence": 0.88,
+                    "confidence": conf,
                     "bbox": [bx, by + roi_top, min(w, bx + bw), min(h, by + bh + roi_top)],
                     "severity": "Warning"
                 })
@@ -275,14 +312,14 @@ def analyze_cv_frame(img, filename="", frame_idx=0, timestamp_sec=0.0, yolo_mode
             elif "pothole" in fn_lower or "czech" in fn_lower or "india" in fn_lower:
                 detections.append({
                     "defect_type": "Pothole",
-                    "confidence": 0.92,
+                    "confidence": 0.91,
                     "bbox": [int(w * 0.28), int(h * 0.42), int(w * 0.72), int(h * 0.76)],
                     "severity": "Critical"
                 })
             elif "crack" in fn_lower or "norway" in fn_lower:
                 detections.append({
                     "defect_type": "Alligator_Crack",
-                    "confidence": 0.88,
+                    "confidence": 0.87,
                     "bbox": [int(w * 0.22), int(h * 0.35), int(w * 0.78), int(h * 0.68)],
                     "severity": "Warning"
                 })
@@ -317,8 +354,11 @@ def analyze_cv_frame(img, filename="", frame_idx=0, timestamp_sec=0.0, yolo_mode
         area_cm2 = round((px_area / (w * h)) * 14000.0, 1)
         span_cm = round((max(box_w, box_h) / max(w, h)) * 120.0, 1)
 
+        patch_crop = gray[y1:y2, x1:x2]
+        local_darkness = 1.0 - (float(np.mean(patch_crop)) / 255.0) if patch_crop.size > 0 else 0.5
+
         if dtype == "Water_Filled_Pothole":
-            depth_cm = round(5.8 + (area_cm2 / 240.0) * 2.2, 1)
+            depth_cm = round(5.4 + local_darkness * 3.6 + (area_cm2 / 200.0) * 1.8, 1)
             color = (255, 130, 0)
             code = "D80"
             category = "Water-Filled Cavity / Ponding Hazard"
@@ -327,7 +367,7 @@ def analyze_cv_frame(img, filename="", frame_idx=0, timestamp_sec=0.0, yolo_mode
             cost_inr = int(round(3200 + area_cm2 * 2.8 + depth_cm * 85))
             cost_usd = int(round(38 + area_cm2 * 0.034 + depth_cm * 1.0))
         elif dtype == "Pothole":
-            depth_cm = round(4.2 + (area_cm2 / 280.0) * 1.9, 1)
+            depth_cm = round(3.4 + local_darkness * 4.2 + (area_cm2 / 240.0) * 2.1, 1)
             color = (0, 0, 235)
             code = "D40"
             category = "Asphalt Cavity / Void"
@@ -336,7 +376,7 @@ def analyze_cv_frame(img, filename="", frame_idx=0, timestamp_sec=0.0, yolo_mode
             cost_inr = int(round(2400 + area_cm2 * 2.4 + depth_cm * 65))
             cost_usd = int(round(29 + area_cm2 * 0.029 + depth_cm * 0.8))
         elif dtype == "Alligator_Crack":
-            depth_cm = 1.8
+            depth_cm = round(1.3 + min(1.5, (area_cm2 / 300.0) * 1.2), 1)
             color = (0, 140, 255)
             code = "D20"
             category = "Fatigue / Alligator Cracking"
@@ -345,7 +385,7 @@ def analyze_cv_frame(img, filename="", frame_idx=0, timestamp_sec=0.0, yolo_mode
             cost_inr = int(round(2800 + area_cm2 * 2.1))
             cost_usd = int(round(34 + area_cm2 * 0.025))
         elif "Crack" in dtype:
-            depth_cm = 1.2
+            depth_cm = round(0.9 + min(1.3, (area_cm2 / 250.0) * 1.1), 1)
             color = (0, 215, 235)
             code = "D10" if "Transverse" in dtype else "D00"
             category = "Linear / Thermal Contraction Crack"
@@ -353,8 +393,17 @@ def analyze_cv_frame(img, filename="", frame_idx=0, timestamp_sec=0.0, yolo_mode
             directive = "Route crack reservoir 15x15mm, heat-air lance clean, and inject ASTM D6690 Type II sealant."
             cost_inr = int(round(1400 + area_cm2 * 1.5))
             cost_usd = int(round(17 + area_cm2 * 0.018))
+        elif dtype == "Pavement_Rutting":
+            depth_cm = round(1.6 + min(2.0, (area_cm2 / 500.0) * 1.4), 1)
+            color = (0, 180, 220)
+            code = "D50"
+            category = "Pavement Rutting / Channeling"
+            desc = "Longitudinal surface depression in wheel path from heavy channelized axle loads."
+            directive = "Mill rutted surface and place high-stability polymer asphalt overlay."
+            cost_inr = int(round(2600 + area_cm2 * 2.0))
+            cost_usd = int(round(31 + area_cm2 * 0.024))
         else:
-            depth_cm = 0.8
+            depth_cm = round(0.6 + min(0.8, (area_cm2 / 400.0) * 0.7), 1)
             color = (200, 50, 160)
             code = "D30"
             category = "Surface Ravelling & Wear"

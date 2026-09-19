@@ -1,4 +1,5 @@
 import type { AgentEvent, PipelinePayload, PresetConfig } from "../types";
+import { analyzeClientSideRoadImage } from "./clientVision";
 
 const API_BASE_URL = "http://localhost:8000";
 const WS_BASE_URL = "ws://localhost:8000/ws/pipeline";
@@ -183,31 +184,23 @@ export class NexusApiClient {
     try {
       const formData = new FormData();
       formData.append("file", file);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 2500);
       const res = await fetch(`${API_BASE_URL}/api/detect-road-image`, {
         method: "POST",
         body: formData,
+        signal: controller.signal,
       });
+      clearTimeout(timeoutId);
       if (!res.ok) throw new Error("Detection API error");
-      return await res.json();
+      const data = await res.json();
+      if (data && data.annotated_image_b64) {
+        return data;
+      }
+      throw new Error("Invalid backend image data");
     } catch (e) {
-      console.warn("Direct detect endpoint error, using client road detection fallback", e);
-      return {
-        has_pothole: true,
-        has_crack: true,
-        pothole_count: 1,
-        crack_count: 1,
-        total_defects: 2,
-        status_banner: "⚠️ SEVERE HAZARDS DETECTED: BOTH POTHOLE & CRACK PRESENT",
-        status_level: "danger",
-        recommendation: "Immediate road maintenance needed. Fill pothole cavity and apply sealant to cracks.",
-        detections: [
-          { defect_type: "Pothole", confidence: 0.92, bbox: [220, 260, 420, 410], severity: "Critical" },
-          { defect_type: "Transverse_Crack", confidence: 0.86, bbox: [80, 180, 560, 240], severity: "High" }
-        ],
-        annotated_image_b64: "",
-        latency_ms: 18.4,
-        filename: file.name
-      };
+      console.warn("Direct detect endpoint unavailable, running in-browser vision analyzer:", e);
+      return await analyzeClientSideRoadImage(file);
     }
   }
 

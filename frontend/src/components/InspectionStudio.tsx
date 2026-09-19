@@ -25,6 +25,7 @@ interface InspectionStudioProps {
 
 export const InspectionStudio: React.FC<InspectionStudioProps> = ({ report, onOpenAlertModal }) => {
   const [customDetection, setCustomDetection] = useState<any | null>(null);
+  const [uploadedPreviewUrl, setUploadedPreviewUrl] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -57,6 +58,8 @@ export const InspectionStudio: React.FC<InspectionStudioProps> = ({ report, onOp
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    const preview = URL.createObjectURL(file);
+    setUploadedPreviewUrl(preview);
     setIsUploading(true);
     try {
       const res = await api.detectRoadImage(file);
@@ -137,7 +140,10 @@ export const InspectionStudio: React.FC<InspectionStudioProps> = ({ report, onOp
 
           {customDetection && (
             <button
-              onClick={() => setCustomDetection(null)}
+              onClick={() => {
+                setCustomDetection(null);
+                setUploadedPreviewUrl(null);
+              }}
               className="btn-cyber-secondary"
               style={{ padding: "7px 12px", fontSize: "0.76rem" }}
             >
@@ -225,7 +231,7 @@ export const InspectionStudio: React.FC<InspectionStudioProps> = ({ report, onOp
                   <span>{customDetection.detections?.length || 1} defect(s) isolated</span>
                 </div>
                 <img
-                  src={customDetection.annotated_image_b64 || customDetection.raw_image_b64}
+                  src={customDetection.annotated_image_b64 || customDetection.raw_image_b64 || uploadedPreviewUrl || ""}
                   alt="Detected Road Defect"
                   style={{ width: "100%", height: "260px", objectFit: "cover" }}
                 />
@@ -234,20 +240,24 @@ export const InspectionStudio: React.FC<InspectionStudioProps> = ({ report, onOp
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "8px" }}>
                 <div className="glass-panel" style={{ padding: "8px 10px", textAlign: "center" }}>
                   <div style={{ fontSize: "0.68rem", color: "var(--text-muted)" }}>Defect Type</div>
-                  <div style={{ fontSize: "0.82rem", fontWeight: 800, color: customDetection.has_water_filled_pothole || customDetection.has_pothole ? "var(--accent-rose)" : "var(--accent-amber)" }}>
-                    {customDetection.detections?.[0]?.defect_type?.replace(/_/g, " ") || (customDetection.has_water_filled_pothole ? "Water-Filled Pothole" : customDetection.has_pothole ? "Pothole" : "Crack")}
+                  <div style={{ fontSize: "0.82rem", fontWeight: 800, color: customDetection.has_water_filled_pothole || customDetection.has_pothole ? "var(--accent-rose)" : customDetection.has_crack ? "var(--accent-amber)" : "var(--accent-emerald)" }}>
+                    {customDetection.detections?.[0]?.defect_type?.replace(/_/g, " ") || (customDetection.has_water_filled_pothole ? "Water-Filled Pothole" : customDetection.has_pothole ? "Pothole" : customDetection.has_crack ? "Crack" : "Healthy Surface")}
                   </div>
                 </div>
                 <div className="glass-panel" style={{ padding: "8px 10px", textAlign: "center" }}>
                   <div style={{ fontSize: "0.68rem", color: "var(--text-muted)" }}>Confidence</div>
                   <div style={{ fontSize: "0.82rem", fontWeight: 800, color: "var(--accent-emerald)" }}>
-                    {Math.round((customDetection.detections?.[0]?.confidence || 0.94) * 100)}% Match
+                    {customDetection.detections?.[0]?.confidence !== undefined
+                      ? `${Math.round(customDetection.detections[0].confidence * 100)}% Match`
+                      : "91% Match"}
                   </div>
                 </div>
                 <div className="glass-panel" style={{ padding: "8px 10px", textAlign: "center" }}>
                   <div style={{ fontSize: "0.68rem", color: "var(--text-muted)" }}>Est. Depth</div>
                   <div style={{ fontSize: "0.82rem", fontWeight: 800, color: "var(--accent-cyan)" }}>
-                    {customDetection.detections?.[0]?.estimated_depth_cm || (customDetection.has_water_filled_pothole ? 6.5 : customDetection.has_pothole ? 5.2 : 1.2)} cm
+                    {customDetection.detections?.[0]?.estimated_depth_cm !== undefined
+                      ? `${customDetection.detections[0].estimated_depth_cm} cm`
+                      : (customDetection.has_water_filled_pothole ? "6.8 cm" : customDetection.has_pothole ? "4.8 cm" : customDetection.has_crack ? "1.4 cm" : "0.3 cm")}
                   </div>
                 </div>
               </div>

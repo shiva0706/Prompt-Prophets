@@ -447,15 +447,49 @@ def get_all_segments() -> List[Dict[str, Any]]:
 
 
 def get_segments_by_road(road_name: str) -> List[Dict[str, Any]]:
-    """Case-insensitive filter by road name / corridor."""
-    norm = road_name.strip().lower().replace("-", "").replace(" ", "").replace("_", "")
-    results = []
-    for seg in MOCK_ROAD_NETWORK:
-        seg_norm = seg["road_name"].lower().replace("-", "").replace(" ", "").replace("_", "")
-        desc_norm = seg.get("corridor_description", "").lower().replace("-", "").replace(" ", "").replace("_", "")
-        if norm in seg_norm or seg_norm in norm or norm in desc_norm:
-            results.append(seg)
-    return results
+    """Case-insensitive filter by road name / corridor with multi-keyword and alias matching."""
+    if not road_name:
+        return MOCK_ROAD_NETWORK
+    
+    clean_query = road_name.lower().strip()
+    
+    # Check exact normalized equality first
+    norm_query = clean_query.replace("-", "").replace(" ", "").replace("_", "")
+    exact_matches = [
+        seg for seg in MOCK_ROAD_NETWORK 
+        if norm_query == seg["road_name"].lower().replace("-", "").replace(" ", "").replace("_", "")
+    ]
+    if exact_matches:
+        return exact_matches
+
+    # Map common aliases
+    alias_target = None
+    if any(k in clean_query for k in ["omr", "rajiv", "sh-49a", "sh49a", "it expressway", "chennai omr"]):
+        alias_target = "chennai omr"
+    elif any(k in clean_query for k in ["nh-44", "nh44", "salem", "dharmapuri"]):
+        alias_target = "nh-44"
+    elif any(k in clean_query for k in ["sh-72", "sh72", "sivagangai"]):
+        alias_target = "sh-72"
+    elif any(k in clean_query for k in ["madurai", "ring road", "mrr"]):
+        alias_target = "madurai ring road"
+    elif any(k in clean_query for k in ["gst", "nh-32", "nh32", "tambaram"]):
+        alias_target = "grand southern trunk"
+    elif any(k in clean_query for k in ["ecr", "sh-49", "sh49", "east coast"]):
+        alias_target = "ecr"
+    elif any(k in clean_query for k in ["nh-48", "nh48", "sriperumbudur"]):
+        alias_target = "nh-48"
+
+    if alias_target:
+        return [
+            seg for seg in MOCK_ROAD_NETWORK 
+            if alias_target in seg["road_name"].lower() or alias_target in seg.get("corridor_description", "").lower()
+        ]
+
+    # Substring in corridor description or road name
+    return [
+        seg for seg in MOCK_ROAD_NETWORK 
+        if clean_query in seg["road_name"].lower() or clean_query in seg.get("corridor_description", "").lower()
+    ]
 
 
 def get_segment_by_id(segment_id: str) -> Optional[Dict[str, Any]]:

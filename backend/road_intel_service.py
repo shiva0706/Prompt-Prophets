@@ -146,10 +146,10 @@ CORRIDORS ={
 "speed_limit_kmh":60 ,
 "traffic_density":"Heavy Commercial & Commuter (38,000 PCU/day)",
 "default_authority_id":"tn_shd",
-"start_lat":12.9865 ,
-"start_lon":80.2435 ,
-"end_lat":12.9120 ,
-"end_lon":80.2280 ,
+"start_lat":12.98800 ,
+"start_lon":80.25360 ,
+"end_lat":12.92800 ,
+"end_lon":80.23400 ,
 "length_km":8.5 
 },
 "nh48_expressway":{
@@ -593,18 +593,18 @@ DISPATCHED_ALERTS_STORE :List [Dict [str ,Any ]]=[
 "severity_score":0.92 ,
 "risk_rating":"88/100 (Severe Puncture & Axle Failure Risk)",
 "road_name":"Rajiv Gandhi Salai / State Highway 49A (OMR IT Expressway)",
-"nearby_landmark":"Near SRP Tools Junction / Apollo Hospital, Perungudi, Chennai",
+"nearby_landmark":"Tidel Park Junction, OMR SH-49A, Tharamani, Chennai",
 "segment_id":"SEG-001",
 "chainage_km":"0.00 (0m)",
-"lat":12.986500 ,
-"lon":80.243500 ,
+"lat":12.988000 ,
+"lon":80.253600 ,
 "timestamp":"2026-09-19 02:30:15 IST",
 "recipient_authority":AUTHORITIES ["tn_shd"],
 "channel":"API & Email Emergency Webhook",
 "status":"ACKNOWLEDGED",
 "assigned_crew":"Highways Squad 4 (Vehicle TN-01-HW-4412)",
 "sla_resolution_target":"< 24 Hours",
-"official_notice_text":"OFFICIAL FIRST INCIDENT REPORT (FIR-RMI/2026/0919-01): Severe D40 Pothole cavity detected at Rajiv Gandhi Salai (SH-49A) Km 0.00 near SRP Tools Junction. Depth 6.2cm, Area 412cm². Immediate hot-mix asphalt compaction mandated.",
+"official_notice_text":"OFFICIAL FIRST INCIDENT REPORT (FIR-RMI/2026/0919-01): Severe D40 Pothole cavity detected at Rajiv Gandhi Salai (SH-49A) Km 0.00 near Tidel Park Junction. Depth 6.2cm, Area 412cm². Immediate hot-mix asphalt compaction mandated.",
 "confirmation_code":"TN-SHD-ACK-99482-OK"
 },
 {
@@ -615,18 +615,18 @@ DISPATCHED_ALERTS_STORE :List [Dict [str ,Any ]]=[
 "severity_score":0.95 ,
 "risk_rating":"94/100 (Immediate Hydroplaning & Wheel Impact Hazard)",
 "road_name":"Rajiv Gandhi Salai / State Highway 49A (OMR IT Expressway)",
-"nearby_landmark":"Near Thoraipakkam Junction / 200 Feet Radial Road Interchange",
+"nearby_landmark":"Kandanchavadi OMR Signal, SH-49A, Chennai",
 "segment_id":"SEG-004",
 "chainage_km":"0.24 (240m)",
-"lat":12.984100 ,
-"lon":80.242900 ,
+"lat":12.969000 ,
+"lon":80.249200 ,
 "timestamp":"2026-09-19 03:15:42 IST",
 "recipient_authority":AUTHORITIES ["tn_shd"],
 "channel":"SMS & Police Control Webhook",
 "status":"CREW_DEPLOYED",
 "assigned_crew":"Emergency Pavement Repair Unit Alpha (Lead: Eng. K. Srinivasan)",
 "sla_resolution_target":"< 24 Hours",
-"official_notice_text":"OFFICIAL FIRST INCIDENT REPORT (FIR-RMI/2026/0919-02): Critical road cavity with co-located water pooling detected at Thoraipakkam junction. Compaction and cold-patch crew dispatched.",
+"official_notice_text":"OFFICIAL FIRST INCIDENT REPORT (FIR-RMI/2026/0919-02): Critical road cavity with co-located water pooling detected at Kandanchavadi junction. Compaction and cold-patch crew dispatched.",
 "confirmation_code":"TN-SHD-DISPATCH-77312-LIVE"
 }
 ]
@@ -712,112 +712,112 @@ def load_full_road_intelligence_inspection (corridor_id :str ="chennai_omr")->Di
     """
     corridor =CORRIDORS .get (corridor_id ,CORRIDORS ["chennai_omr"])
 
-    route_frames_config =[
-    {
-    "frame_idx":0 ,
-    "filename":"India_000101.jpg",
-    "distance_m":0 ,
-    "lat":corridor ["start_lat"],
-    "lon":corridor ["start_lon"],
-    "segment_id":"SEG-001",
-    "road_name":corridor .get ("road_name","Rajiv Gandhi Salai / State Highway 49A (OMR IT Expressway)"),
-    "nearby_landmark":"Near SRP Tools Junction / Apollo Hospital, Perungudi, Chennai",
-    "defects":[
-    {"type":"Pothole","conf":0.94 ,"bbox":[265 ,290 ,425 ,410 ]},
-    {"type":"Transverse_Crack","conf":0.88 ,"bbox":[160 ,210 ,480 ,260 ]}
-    ]
-    },
-    {
-    "frame_idx":1 ,
-    "filename":"Czech_000340.jpg",
-    "distance_m":85 ,
-    "lat":corridor ["start_lat"]-0.0008 ,
-    "lon":corridor ["start_lon"]-0.0002 ,
-    "segment_id":"SEG-002",
-    "road_name":corridor .get ("road_name","Rajiv Gandhi Salai / State Highway 49A (OMR IT Expressway)"),
-    "nearby_landmark":"Opposite Tidel Park IT SEZ Entrance, Tharamani",
-    "defects":[
-    {"type":"Pothole","conf":0.96 ,"bbox":[250 ,275 ,415 ,395 ]}
-    ]
-    },
-    {
-    "frame_idx":2 ,
-    "filename":"Norway_000880.jpg",
-    "distance_m":160 ,
-    "lat":corridor ["start_lat"]-0.0016 ,
-    "lon":corridor ["start_lon"]-0.0004 ,
-    "segment_id":"SEG-003",
-    "road_name":corridor .get ("road_name","Rajiv Gandhi Salai / State Highway 49A (OMR IT Expressway)"),
-    "nearby_landmark":"Near Perungudi Toll Plaza & RMZ Millenia Tech Park",
-    "defects":[
-    {"type":"Transverse_Crack","conf":0.91 ,"bbox":[180 ,235 ,510 ,285 ]},
-    {"type":"Longitudinal_Crack","conf":0.86 ,"bbox":[410 ,250 ,460 ,420 ]}
-    ]
-    },
-    {
-    "frame_idx":3 ,
-    "filename":"Japan_001420.jpg",
-    "distance_m":240 ,
-    "lat":corridor ["start_lat"]-0.0024 ,
-    "lon":corridor ["start_lon"]-0.0006 ,
-    "segment_id":"SEG-004",
-    "road_name":corridor .get ("road_name","Rajiv Gandhi Salai / State Highway 49A (OMR IT Expressway)"),
-    "nearby_landmark":"Near Thoraipakkam Junction / 200 Feet Radial Road Interchange",
-    "defects":[
-    {"type":"Alligator_Crack","conf":0.93 ,"bbox":[290 ,280 ,520 ,430 ]},
-    {"type":"Longitudinal_Crack","conf":0.87 ,"bbox":[190 ,220 ,240 ,410 ]}
-    ]
-    },
-    {
-    "frame_idx":4 ,
-    "filename":"India_000102.jpg",
-    "distance_m":320 ,
-    "lat":corridor ["start_lat"]-0.0032 ,
-    "lon":corridor ["start_lon"]-0.0008 ,
-    "segment_id":"SEG-005",
-    "road_name":corridor .get ("road_name","Rajiv Gandhi Salai / State Highway 49A (OMR IT Expressway)"),
-    "nearby_landmark":"Near Dollar Bus Stop / Fortune Towers, Sholinganallur",
-    "defects":[
-    {"type":"Alligator_Crack","conf":0.89 ,"bbox":[210 ,260 ,460 ,390 ]}
-    ]
-    },
-    {
-    "frame_idx":5 ,
-    "filename":"Czech_000341.jpg",
-    "distance_m":410 ,
-    "lat":corridor ["start_lat"]-0.0040 ,
-    "lon":corridor ["start_lon"]-0.0010 ,
-    "segment_id":"SEG-006",
-    "road_name":corridor .get ("road_name","Rajiv Gandhi Salai / State Highway 49A (OMR IT Expressway)"),
-    "nearby_landmark":"Opposite Infosys Gate 1, Sholinganallur Junction",
-    "defects":[
-    {"type":"Pothole","conf":0.92 ,"bbox":[270 ,280 ,410 ,385 ]}
-    ]
-    },
-    {
-    "frame_idx":6 ,
-    "filename":"Norway_000881.jpg",
-    "distance_m":490 ,
-    "lat":corridor ["start_lat"]-0.0048 ,
-    "lon":corridor ["start_lon"]-0.0012 ,
-    "segment_id":"SEG-007",
-    "road_name":corridor .get ("road_name","Rajiv Gandhi Salai / State Highway 49A (OMR IT Expressway)"),
-    "nearby_landmark":"Near Sathyabama University & Karapakkam Lake",
-    "defects":[
-    {"type":"Transverse_Crack","conf":0.88 ,"bbox":[120 ,270 ,520 ,320 ]}
-    ]
-    },
-    {
-    "frame_idx":7 ,
-    "filename":"Japan_001421.jpg",
-    "distance_m":580 ,
-    "lat":corridor ["start_lat"]-0.0056 ,
-    "lon":corridor ["start_lon"]-0.0014 ,
-    "segment_id":"SEG-008",
-    "road_name":corridor .get ("road_name","Rajiv Gandhi Salai / State Highway 49A (OMR IT Expressway)"),
-    "nearby_landmark":"Near Siruseri SIPCOT IT Park Central Gateway",
-    "defects":[]
-    }
+    route_frames_config = [
+        {
+            "frame_idx": 0,
+            "filename": "India_000101.jpg",
+            "distance_m": 0,
+            "lat": 12.98800,
+            "lon": 80.25360,
+            "segment_id": "SEG-001",
+            "road_name": corridor.get("road_name", "Rajiv Gandhi Salai / State Highway 49A (OMR IT Expressway)"),
+            "nearby_landmark": "Tidel Park Junction, OMR SH-49A, Tharamani",
+            "defects": [
+                {"type": "Pothole", "conf": 0.94, "bbox": [265, 290, 425, 410]},
+                {"type": "Transverse_Crack", "conf": 0.88, "bbox": [160, 210, 480, 260]},
+            ],
+        },
+        {
+            "frame_idx": 1,
+            "filename": "Czech_000340.jpg",
+            "distance_m": 85,
+            "lat": 12.98150,
+            "lon": 80.25250,
+            "segment_id": "SEG-002",
+            "road_name": corridor.get("road_name", "Rajiv Gandhi Salai / State Highway 49A (OMR IT Expressway)"),
+            "nearby_landmark": "Ascendas IT Park & CSIR Road Signal, OMR SH-49A",
+            "defects": [
+                {"type": "Pothole", "conf": 0.96, "bbox": [250, 275, 415, 395]},
+            ],
+        },
+        {
+            "frame_idx": 2,
+            "filename": "Norway_000880.jpg",
+            "distance_m": 160,
+            "lat": 12.97550,
+            "lon": 80.25100,
+            "segment_id": "SEG-003",
+            "road_name": corridor.get("road_name", "Rajiv Gandhi Salai / State Highway 49A (OMR IT Expressway)"),
+            "nearby_landmark": "SRP Tools Flyover & OMR Junction, SH-49A",
+            "defects": [
+                {"type": "Transverse_Crack", "conf": 0.91, "bbox": [180, 235, 510, 285]},
+                {"type": "Longitudinal_Crack", "conf": 0.86, "bbox": [410, 250, 460, 420]},
+            ],
+        },
+        {
+            "frame_idx": 3,
+            "filename": "Japan_001420.jpg",
+            "distance_m": 240,
+            "lat": 12.96900,
+            "lon": 80.24920,
+            "segment_id": "SEG-004",
+            "road_name": corridor.get("road_name", "Rajiv Gandhi Salai / State Highway 49A (OMR IT Expressway)"),
+            "nearby_landmark": "Kandanchavadi OMR Signal, SH-49A",
+            "defects": [
+                {"type": "Alligator_Crack", "conf": 0.93, "bbox": [290, 280, 520, 430]},
+                {"type": "Longitudinal_Crack", "conf": 0.87, "bbox": [190, 220, 240, 410]},
+            ],
+        },
+        {
+            "frame_idx": 4,
+            "filename": "India_000102.jpg",
+            "distance_m": 320,
+            "lat": 12.96200,
+            "lon": 80.24700,
+            "segment_id": "SEG-005",
+            "road_name": corridor.get("road_name", "Rajiv Gandhi Salai / State Highway 49A (OMR IT Expressway)"),
+            "nearby_landmark": "Perungudi Toll Plaza & RMZ Millenia, SH-49A",
+            "defects": [
+                {"type": "Alligator_Crack", "conf": 0.89, "bbox": [210, 260, 460, 390]},
+            ],
+        },
+        {
+            "frame_idx": 5,
+            "filename": "Czech_000341.jpg",
+            "distance_m": 410,
+            "lat": 12.95500,
+            "lon": 80.24500,
+            "segment_id": "SEG-006",
+            "road_name": corridor.get("road_name", "Rajiv Gandhi Salai / State Highway 49A (OMR IT Expressway)"),
+            "nearby_landmark": "Seevaram & Jain College Junction, OMR SH-49A",
+            "defects": [
+                {"type": "Pothole", "conf": 0.92, "bbox": [270, 280, 410, 385]},
+            ],
+        },
+        {
+            "frame_idx": 6,
+            "filename": "Norway_000881.jpg",
+            "distance_m": 490,
+            "lat": 12.94800,
+            "lon": 80.24250,
+            "segment_id": "SEG-007",
+            "road_name": corridor.get("road_name", "Rajiv Gandhi Salai / State Highway 49A (OMR IT Expressway)"),
+            "nearby_landmark": "Thoraipakkam 200ft Radial Road Junction, SH-49A",
+            "defects": [
+                {"type": "Transverse_Crack", "conf": 0.88, "bbox": [120, 270, 520, 320]},
+            ],
+        },
+        {
+            "frame_idx": 7,
+            "filename": "Japan_001421.jpg",
+            "distance_m": 580,
+            "lat": 12.93800,
+            "lon": 80.23800,
+            "segment_id": "SEG-008",
+            "road_name": corridor.get("road_name", "Rajiv Gandhi Salai / State Highway 49A (OMR IT Expressway)"),
+            "nearby_landmark": "Karapakkam Gateway towards Sholinganallur, SH-49A",
+            "defects": [],
+        },
     ]
 
     processed_frames =[]
@@ -923,32 +923,42 @@ def load_full_road_intelligence_inspection (corridor_id :str ="chennai_omr")->Di
             band_color ="#10B981"
             status_text ="Safe / Smooth Surface"
 
-        start_f =s_frames [0 ]if s_frames else route_frames_config [0 ]
-        end_dist =start_f ["distance_m"]+50 
+        start_f = s_frames[0] if s_frames else route_frames_config[0]
+        end_dist = start_f["distance_m"] + 50
 
-        segments .append ({
-        "segment_id":s_id ,
-        "segment_index":s_idx +1 ,
-        "start_distance_m":start_f ["distance_m"],
-        "end_distance_m":end_dist ,
-        "start_lat":start_f ["lat"],
-        "start_lon":start_f ["lon"],
-        "end_lat":start_f ["lat"]-0.0004 ,
-        "end_lon":start_f ["lon"]-0.0001 ,
-        "road_name":start_f .get ("road_name","Rajiv Gandhi Salai / State Highway 49A"),
-        "nearby_landmark":start_f .get ("nearby_landmark","Near SRP Tools Junction, Perungudi"),
-        "sri_score":sri ,
-        "pci_score":pci ,
-        "condition_band":band ,
-        "band_color":band_color ,
-        "status_text":status_text ,
-        "defect_count":len (s_defects ),
-        "pothole_count":sum (1 for d in s_defects if "Pothole"in d ["defect_type"]),
-        "crack_count":sum (1 for d in s_defects if "Crack"in d ["defect_type"]),
-        "water_count":sum (1 for d in s_defects if "Water"in d ["defect_type"]),
-        "defects":s_defects ,
-        "dominant_defect":s_defects [0 ]["defect_type"].replace ("_"," ")if s_defects else "None",
-        "speed_limit_kmh":corridor ["speed_limit_kmh"]
+        if s_idx + 1 < len(unique_segments):
+            next_seg_id = unique_segments[s_idx + 1]
+            next_matching = [f for f in route_frames_config if f["segment_id"] == next_seg_id]
+            next_f = next_matching[0] if next_matching else route_frames_config[-1]
+            end_lat = next_f["lat"]
+            end_lon = next_f["lon"]
+        else:
+            end_lat = 12.92800
+            end_lon = 80.23400
+
+        segments.append({
+            "segment_id": s_id,
+            "segment_index": s_idx + 1,
+            "start_distance_m": start_f["distance_m"],
+            "end_distance_m": end_dist,
+            "start_lat": start_f["lat"],
+            "start_lon": start_f["lon"],
+            "end_lat": end_lat,
+            "end_lon": end_lon,
+            "road_name": start_f.get("road_name", "Rajiv Gandhi Salai / State Highway 49A (OMR IT Expressway)"),
+            "nearby_landmark": start_f.get("nearby_landmark", "Near SRP Tools Junction, Perungudi"),
+            "sri_score": sri,
+            "pci_score": pci,
+            "condition_band": band,
+            "band_color": band_color,
+            "status_text": status_text,
+            "defect_count": len(s_defects),
+            "pothole_count": sum(1 for d in s_defects if "Pothole" in d["defect_type"]),
+            "crack_count": sum(1 for d in s_defects if "Crack" in d["defect_type"]),
+            "water_count": sum(1 for d in s_defects if "Water" in d["defect_type"]),
+            "defects": s_defects,
+            "dominant_defect": s_defects[0]["defect_type"].replace("_", " ") if s_defects else "None",
+            "speed_limit_kmh": corridor["speed_limit_kmh"],
         })
 
     work_orders_list .sort (key =lambda x :(x ["priority_rank"],-x .get ("estimated_cost_inr",x .get ("estimated_cost_usd",0.0 ))))

@@ -165,8 +165,8 @@ export const AuthorityAlertModal: React.FC<AuthorityAlertModalProps> = ({
         left: 0,
         right: 0,
         bottom: 0,
-        background: "rgba(3, 7, 18, 0.85)",
-        backdropFilter: "blur(12px)",
+        background: "rgba(15, 23, 42, 0.55)",
+        backdropFilter: "blur(14px)",
         zIndex: 9999,
         display: "flex",
         alignItems: "center",
@@ -175,61 +175,62 @@ export const AuthorityAlertModal: React.FC<AuthorityAlertModalProps> = ({
       }}
     >
       <div
-        className="glass-panel glass-panel-glow-rose fade-in-up"
+        className="glass-panel fade-in-up"
         style={{
           width: "100%",
           maxWidth: "960px",
           maxHeight: "90vh",
           overflowY: "auto",
-          background: "var(--bg-card)",
+          background: "rgba(255, 255, 255, 0.94)",
           border: isCritical
-            ? "2px solid var(--accent-rose)"
-            : "2px solid var(--accent-amber)",
-          borderRadius: "20px",
+            ? "2px solid #ef4444"
+            : "2px solid #f59e0b",
+          borderRadius: "18px",
           boxShadow: isCritical
-            ? "0 0 50px rgba(255, 42, 95, 0.35)"
-            : "0 0 40px rgba(245, 158, 11, 0.35)",
-          padding: "26px 30px",
+            ? "0 20px 60px rgba(239, 68, 68, 0.25)"
+            : "0 20px 60px rgba(245, 158, 11, 0.2)",
+          padding: "24px 28px",
           display: "flex",
           flexDirection: "column",
-          gap: "20px",
+          gap: "18px",
         }}
       >
         
+        {/* Modal Header */}
         <div
           style={{
             display: "flex",
             justifyContent: "space-between",
             alignItems: "flex-start",
             borderBottom: "1px solid var(--border-glass)",
-            paddingBottom: "16px",
+            paddingBottom: "14px",
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
             <div
               style={{
-                width: "44px",
-                height: "44px",
-                borderRadius: "12px",
-                background: isCritical ? "rgba(255, 42, 95, 0.2)" : "rgba(245, 158, 11, 0.2)",
+                width: "42px",
+                height: "42px",
+                borderRadius: "10px",
+                background: isCritical ? "rgba(239, 68, 68, 0.12)" : "rgba(245, 158, 11, 0.12)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
               }}
             >
-              <Building2 size={24} color={isCritical ? "var(--accent-rose)" : "var(--accent-amber)"} />
+              <Building2 size={22} color={isCritical ? "#ef4444" : "#f59e0b"} />
             </div>
             <div>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <h2 style={{ fontSize: "1.25rem", fontWeight: 800, margin: 0, color: "#ffffff" }}>
-                  Official Road Defect Initiative & Authority Notice Generator
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+                <h2 style={{ fontSize: "1.18rem", fontWeight: 800, margin: 0, color: "var(--text-primary)" }}>
+                  Official Road Defect Initiative &amp; Authority Notice Generator
                 </h2>
-                <span className={`cyber-badge ${isCritical ? "badge-rose badge-critical-blink" : "badge-amber badge-warning-blink"}`} style={{ fontSize: "0.7rem", display: "inline-flex", alignItems: "center", gap: "5px" }}>
-                  <span className={isCritical ? "dot-critical-fast" : "dot-warning-slow"} style={{ width: "5px", height: "5px", borderRadius: "50%", background: "currentColor" }} />
-                  {isCritical ? "🚨 CRITICAL PRIORITY (FAST BLINK)" : "⚠️ HIGH PRIORITY (SLOW BLINK)"}
+                <span className={`cyber-badge ${isCritical ? "badge-rose" : "badge-amber"}`} style={{ fontSize: "0.68rem", display: "inline-flex", alignItems: "center", gap: "5px" }}>
+                  <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: isCritical ? "#ef4444" : "#f59e0b" }} />
+                  {isCritical ? "🚨 CRITICAL PRIORITY (< 24H SLA)" : "⚠️ HIGH PRIORITY (< 48H SLA)"}
                 </span>
               </div>
-              <p style={{ fontSize: "0.8rem", color: "var(--text-secondary)", margin: "4px 0 0 0" }}>
+              <p style={{ fontSize: "0.78rem", color: "var(--text-secondary)", margin: "3px 0 0 0" }}>
                 Automated Incident Report (FIR) dispatch to concerned Government Road Authority for rapid inspection and repair.
               </p>
             </div>
@@ -238,12 +239,15 @@ export const AuthorityAlertModal: React.FC<AuthorityAlertModalProps> = ({
           <button
             onClick={onClose}
             style={{
-              background: "rgba(255, 255, 255, 0.08)",
+              background: "rgba(0, 0, 0, 0.04)",
               border: "1px solid var(--border-glass)",
               borderRadius: "8px",
               padding: "6px",
               cursor: "pointer",
               color: "var(--text-muted)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
             <X size={18} />
@@ -255,8 +259,8 @@ export const AuthorityAlertModal: React.FC<AuthorityAlertModalProps> = ({
             className="glass-panel fade-in-up"
             style={{
               padding: "24px",
-              background: "linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(13, 20, 38, 0.95) 100%)",
-              border: "1.5px solid var(--accent-emerald)",
+              background: "linear-gradient(135deg, rgba(240, 253, 244, 0.95), rgba(220, 252, 231, 0.75))",
+              border: "1.5px solid #10b981",
               borderRadius: "14px",
               display: "flex",
               flexDirection: "column",
@@ -264,25 +268,25 @@ export const AuthorityAlertModal: React.FC<AuthorityAlertModalProps> = ({
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-              <div style={{ width: "42px", height: "42px", borderRadius: "50%", background: "rgba(16, 185, 129, 0.25)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <CheckCircle2 size={24} color="var(--accent-emerald)" />
+              <div style={{ width: "42px", height: "42px", borderRadius: "50%", background: "rgba(16, 185, 129, 0.2)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <CheckCircle2 size={24} color="#10b981" />
               </div>
               <div>
-                <h3 style={{ fontSize: "1.15rem", fontWeight: 800, color: "var(--accent-emerald)", margin: 0 }}>
-                  Official Incident Alert Successfully Dispatched & Signed!
+                <h3 style={{ fontSize: "1.15rem", fontWeight: 800, color: "#065f46", margin: 0 }}>
+                  Official Incident Alert Successfully Dispatched &amp; Signed!
                 </h3>
                 <div style={{ fontSize: "0.78rem", color: "var(--text-secondary)", marginTop: "2px" }}>
-                  Delivered to <strong>{dispatchReceipt.recipient_authority.name}</strong> • Reference Docket: <strong className="code-font" style={{ color: "var(--accent-cyan)" }}>{dispatchReceipt.docket_id}</strong>
+                  Delivered to <strong>{dispatchReceipt.recipient_authority.name}</strong> • Reference Docket: <strong className="code-font" style={{ color: "#0284c7" }}>{dispatchReceipt.docket_id}</strong>
                 </div>
               </div>
             </div>
 
             <div
               style={{
-                background: "rgba(10, 15, 30, 0.8)",
+                background: "#ffffff",
                 padding: "16px 18px",
                 borderRadius: "10px",
-                border: "1px solid var(--border-glass)",
+                border: "1px solid rgba(16, 185, 129, 0.3)",
                 display: "grid",
                 gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
                 gap: "12px",
@@ -291,19 +295,19 @@ export const AuthorityAlertModal: React.FC<AuthorityAlertModalProps> = ({
             >
               <div>
                 <span style={{ color: "var(--text-muted)" }}>Confirmation Auth Code:</span>
-                <div className="code-font" style={{ fontWeight: 700, color: "var(--accent-cyan)", marginTop: "2px" }}>
+                <div className="code-font" style={{ fontWeight: 700, color: "#0284c7", marginTop: "2px" }}>
                   {dispatchReceipt.confirmation_code}
                 </div>
               </div>
               <div>
                 <span style={{ color: "var(--text-muted)" }}>Assigned Inspection Crew:</span>
-                <div style={{ fontWeight: 700, color: "#ffffff", marginTop: "2px" }}>
+                <div style={{ fontWeight: 700, color: "var(--text-primary)", marginTop: "2px" }}>
                   {dispatchReceipt.assigned_crew}
                 </div>
               </div>
               <div>
                 <span style={{ color: "var(--text-muted)" }}>Mandated Repair SLA:</span>
-                <div style={{ fontWeight: 700, color: "var(--accent-rose)", marginTop: "2px" }}>
+                <div style={{ fontWeight: 700, color: "#ef4444", marginTop: "2px" }}>
                   {dispatchReceipt.sla_resolution_target}
                 </div>
               </div>
@@ -335,9 +339,10 @@ export const AuthorityAlertModal: React.FC<AuthorityAlertModalProps> = ({
           </div>
         ) : (
           
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1.2fr", gap: "24px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(360px, 1fr))", gap: "20px" }}>
             
-            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+            {/* Left Column: Evidence & Telemetry */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
               
               <div
                 style={{
@@ -345,8 +350,8 @@ export const AuthorityAlertModal: React.FC<AuthorityAlertModalProps> = ({
                   borderRadius: "12px",
                   overflow: "hidden",
                   border: "1px solid var(--border-glass)",
-                  background: "#050814",
-                  height: "200px",
+                  background: "linear-gradient(135deg, #f8fafc, #f1f5f9)",
+                  height: "190px",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -359,9 +364,9 @@ export const AuthorityAlertModal: React.FC<AuthorityAlertModalProps> = ({
                     style={{ width: "100%", height: "100%", objectFit: "cover" }}
                   />
                 ) : (
-                  <div style={{ textAlign: "center", color: "var(--text-muted)", fontSize: "0.8rem" }}>
-                    <ShieldAlert size={36} color={defect.color_hex} style={{ margin: "0 auto 8px" }} />
-                    <div>{defect.defect_type.replace(/_/g, " ")} Evidence</div>
+                  <div style={{ textAlign: "center", color: "var(--text-secondary)", fontSize: "0.8rem" }}>
+                    <ShieldAlert size={36} color={defect.color_hex || "#ef4444"} style={{ margin: "0 auto 8px" }} />
+                    <div style={{ fontWeight: 700 }}>{defect.defect_type.replace(/_/g, " ")} Evidence</div>
                   </div>
                 )}
 
@@ -370,16 +375,17 @@ export const AuthorityAlertModal: React.FC<AuthorityAlertModalProps> = ({
                     position: "absolute",
                     top: "10px",
                     left: "10px",
-                    background: "rgba(10, 15, 30, 0.85)",
+                    background: "rgba(255, 255, 255, 0.95)",
                     padding: "4px 10px",
                     borderRadius: "6px",
-                    border: "1px solid var(--border-glass)",
+                    border: "1px solid rgba(0, 0, 0, 0.1)",
                     fontSize: "0.72rem",
-                    fontWeight: 700,
-                    color: defect.color_hex,
+                    fontWeight: 800,
+                    color: defect.color_hex || "#ef4444",
+                    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)",
                   }}
                 >
-                  {defect.rdd_code}: {defect.defect_type.replace(/_/g, " ")}
+                  {defect.rdd_code || "D40"}: {defect.defect_type.replace(/_/g, " ")}
                 </div>
 
                 <div
@@ -387,16 +393,17 @@ export const AuthorityAlertModal: React.FC<AuthorityAlertModalProps> = ({
                     position: "absolute",
                     bottom: "10px",
                     right: "10px",
-                    background: "rgba(10, 15, 30, 0.85)",
+                    background: "rgba(255, 255, 255, 0.95)",
                     padding: "4px 10px",
                     borderRadius: "6px",
-                    border: "1px solid var(--border-glass)",
+                    border: "1px solid rgba(0, 0, 0, 0.1)",
                     fontSize: "0.72rem",
-                    fontWeight: 700,
-                    color: "var(--accent-cyan)",
+                    fontWeight: 800,
+                    color: "#0284c7",
+                    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)",
                   }}
                 >
-                  Confidence: {Math.round(defect.confidence * 100)}%
+                  Confidence: {Math.round((defect.confidence || 0.92) * 100)}%
                 </div>
               </div>
 
@@ -406,63 +413,63 @@ export const AuthorityAlertModal: React.FC<AuthorityAlertModalProps> = ({
                   borderRadius: "12px",
                   padding: "16px 18px",
                   border: "1px solid var(--border-glass)",
-                  borderLeft: "4px solid var(--accent-burgundy)",
+                  borderLeft: "4px solid #0284c7",
                   display: "flex",
                   flexDirection: "column",
                   gap: "10px",
                 }}
               >
-                <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "var(--accent-cyan)", fontWeight: 700, fontSize: "0.86rem" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "#0284c7", fontWeight: 800, fontSize: "0.86rem" }}>
                   <MapPin size={16} />
-                  <span>Exact GPS Geolocation & Highway Telemetry</span>
+                  <span>Exact GPS Geolocation &amp; Highway Telemetry</span>
                 </div>
 
                 <div style={{ display: "flex", flexDirection: "column", gap: "6px", fontSize: "0.78rem" }}>
                   <div>
-                    <span style={{ color: "var(--text-muted)" }}>Official Road Name:</span>
+                    <span style={{ color: "var(--text-muted)", fontSize: "0.72rem" }}>Official Road Name:</span>
                     <div style={{ fontWeight: 700, color: "var(--text-primary)", marginTop: "1px" }}>
                       🛣️ {roadName}
                     </div>
                   </div>
 
                   <div>
-                    <span style={{ color: "var(--text-muted)" }}>Nearby Landmark / Location:</span>
-                    <div style={{ fontWeight: 700, color: "var(--accent-amber)", marginTop: "1px" }}>
+                    <span style={{ color: "var(--text-muted)", fontSize: "0.72rem" }}>Nearby Landmark / Location:</span>
+                    <div style={{ fontWeight: 700, color: "#d97706", marginTop: "1px" }}>
                       📍 {nearbyLandmark}
                     </div>
                   </div>
 
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", marginTop: "4px" }}>
-                    <div style={{ background: "rgba(15, 23, 42, 0.6)", padding: "6px 10px", borderRadius: "6px" }}>
-                      <span style={{ color: "var(--text-muted)", fontSize: "0.7rem" }}>Latitude:</span>
-                      <div className="code-font" style={{ fontWeight: 700, color: "#ffffff" }}>
-                        {defect.lat.toFixed(6)}° N
+                    <div style={{ background: "rgba(2, 132, 199, 0.08)", padding: "7px 10px", borderRadius: "6px", border: "1px solid rgba(2, 132, 199, 0.2)" }}>
+                      <span style={{ color: "var(--text-muted)", fontSize: "0.68rem", fontWeight: 700, textTransform: "uppercase" }}>Latitude</span>
+                      <div className="code-font" style={{ fontWeight: 800, color: "#0f172a", fontSize: "0.84rem" }}>
+                        {defect.lat ? defect.lat.toFixed(6) : "12.971600"}° N
                       </div>
                     </div>
-                    <div style={{ background: "rgba(15, 23, 42, 0.6)", padding: "6px 10px", borderRadius: "6px" }}>
-                      <span style={{ color: "var(--text-muted)", fontSize: "0.7rem" }}>Longitude:</span>
-                      <div className="code-font" style={{ fontWeight: 700, color: "#ffffff" }}>
-                        {defect.lon.toFixed(6)}° E
+                    <div style={{ background: "rgba(2, 132, 199, 0.08)", padding: "7px 10px", borderRadius: "6px", border: "1px solid rgba(2, 132, 199, 0.2)" }}>
+                      <span style={{ color: "var(--text-muted)", fontSize: "0.68rem", fontWeight: 700, textTransform: "uppercase" }}>Longitude</span>
+                      <div className="code-font" style={{ fontWeight: 800, color: "#0f172a", fontSize: "0.84rem" }}>
+                        {defect.lon ? defect.lon.toFixed(6) : "80.252800"}° E
                       </div>
                     </div>
                   </div>
 
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "2px" }}>
-                    <span style={{ color: "var(--text-muted)" }}>Chainage & Segment:</span>
+                    <span style={{ color: "var(--text-muted)" }}>Chainage &amp; Segment:</span>
                     <span style={{ fontWeight: 700, color: "var(--text-primary)" }}>
-                      {defect.segment_id} • {chainage}
+                      {defect.segment_id || "SEG-001"} • {chainage}
                     </span>
                   </div>
                 </div>
 
                 <a
-                  href={`https://www.google.com/maps?q=${defect.lat},${defect.lon}`}
+                  href={`https://www.google.com/maps?q=${defect.lat || 12.9716},${defect.lon || 80.2528}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn-cyber-primary"
                   style={{
-                    padding: "6px 12px",
-                    fontSize: "0.74rem",
+                    padding: "7px 14px",
+                    fontSize: "0.76rem",
                     textDecoration: "none",
                     display: "inline-flex",
                     alignItems: "center",
@@ -490,30 +497,31 @@ export const AuthorityAlertModal: React.FC<AuthorityAlertModalProps> = ({
                 }}
               >
                 <div>
-                  <div style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>Risk Score</div>
-                  <div style={{ fontSize: "1.2rem", fontWeight: 800, color: defect.color_hex }}>
-                    {Math.round(defect.severity_score * 100)}/100
+                  <div style={{ fontSize: "0.7rem", color: "var(--text-muted)", fontWeight: 700 }}>Risk Score</div>
+                  <div style={{ fontSize: "1.25rem", fontWeight: 900, color: defect.color_hex || "#ef4444" }}>
+                    {Math.round((defect.severity_score || 0.85) * 100)}/100
                   </div>
                 </div>
                 <div>
-                  <div style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>Cavity Depth</div>
-                  <div style={{ fontSize: "1.2rem", fontWeight: 800, color: "var(--accent-cyan)" }}>
-                    {defect.estimated_depth_cm} cm
+                  <div style={{ fontSize: "0.7rem", color: "var(--text-muted)", fontWeight: 700 }}>Cavity Depth</div>
+                  <div style={{ fontSize: "1.25rem", fontWeight: 900, color: "#0284c7" }}>
+                    {defect.estimated_depth_cm || 5.8} cm
                   </div>
                 </div>
                 <div>
-                  <div style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>Defect Area</div>
-                  <div style={{ fontSize: "1.2rem", fontWeight: 800, color: "var(--accent-amber)" }}>
-                    {defect.estimated_area_cm2} cm²
+                  <div style={{ fontSize: "0.7rem", color: "var(--text-muted)", fontWeight: 700 }}>Defect Area</div>
+                  <div style={{ fontSize: "1.25rem", fontWeight: 900, color: "#d97706" }}>
+                    {defect.estimated_area_cm2 || 420} cm²
                   </div>
                 </div>
               </div>
             </div>
 
+            {/* Right Column: Government Authority, Channel, & Notes */}
             <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
               
               <div>
-                <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 700, color: "var(--text-primary)", marginBottom: "6px" }}>
+                <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 800, color: "var(--text-primary)", marginBottom: "6px" }}>
                   🏛️ Concerned Government / Maintenance Authority:
                 </label>
                 <select
@@ -521,54 +529,56 @@ export const AuthorityAlertModal: React.FC<AuthorityAlertModalProps> = ({
                   onChange={(e) => setSelectedAuthorityId(e.target.value)}
                   style={{
                     width: "100%",
-                    background: "var(--bg-surface)",
-                    color: "#ffffff",
-                    border: "1px solid var(--border-glass)",
+                    background: "#ffffff",
+                    color: "#0f172a",
+                    border: "1.5px solid rgba(2, 132, 199, 0.35)",
                     borderRadius: "8px",
                     padding: "10px 14px",
                     fontSize: "0.84rem",
-                    fontWeight: 600,
+                    fontWeight: 700,
                     outline: "none",
+                    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.04)",
                   }}
                 >
                   {authList.map((a) => (
-                    <option key={a.id} value={a.id} style={{ background: "#0f172a", color: "#ffffff" }}>
+                    <option key={a.id} value={a.id} style={{ background: "#ffffff", color: "#0f172a" }}>
                       {a.name} ({a.short_name}) — {a.jurisdiction}
                     </option>
                   ))}
                 </select>
               </div>
 
+              {/* Authority Nodal Officer & SLA info card */}
               <div
                 style={{
-                  background: "rgba(10, 15, 30, 0.7)",
-                  padding: "12px 16px",
+                  background: "linear-gradient(135deg, rgba(240, 249, 255, 0.95), rgba(224, 242, 254, 0.75))",
+                  padding: "14px 18px",
                   borderRadius: "10px",
-                  border: "1px solid var(--border-glass)",
+                  border: "1px solid rgba(2, 132, 199, 0.25)",
                   display: "flex",
                   flexDirection: "column",
-                  gap: "6px",
-                  fontSize: "0.76rem",
+                  gap: "7px",
+                  fontSize: "0.78rem",
                 }}
               >
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ color: "var(--text-muted)" }}>Responsible Nodal Officer:</span>
-                  <span style={{ fontWeight: 700, color: "#ffffff" }}>{selectedAuthority.nodal_officer}</span>
+                  <span style={{ color: "var(--text-secondary)", fontWeight: 600 }}>Responsible Nodal Officer:</span>
+                  <span style={{ fontWeight: 800, color: "#0f172a" }}>{selectedAuthority.nodal_officer}</span>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ color: "var(--text-muted)" }}>Official Helpline / Portal:</span>
-                  <span style={{ fontWeight: 700, color: "var(--accent-cyan)" }}>{selectedAuthority.hotline}</span>
+                  <span style={{ color: "var(--text-secondary)", fontWeight: 600 }}>Official Helpline / Portal:</span>
+                  <span style={{ fontWeight: 800, color: "#0284c7" }}>{selectedAuthority.hotline}</span>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ color: "var(--text-muted)" }}>Mandated Repair SLA:</span>
-                  <span style={{ fontWeight: 700, color: "var(--accent-rose)" }}>
+                  <span style={{ color: "var(--text-secondary)", fontWeight: 600 }}>Mandated Repair SLA:</span>
+                  <span style={{ fontWeight: 800, color: "#ef4444" }}>
                     &lt; {isCritical ? selectedAuthority.sla_emergency_hours : selectedAuthority.sla_high_hours} Hours Target
                   </span>
                 </div>
               </div>
 
               <div>
-                <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 700, color: "var(--text-primary)", marginBottom: "6px" }}>
+                <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 800, color: "var(--text-primary)", marginBottom: "6px" }}>
                   📡 Transmission Channel:
                 </label>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "8px" }}>
@@ -584,16 +594,17 @@ export const AuthorityAlertModal: React.FC<AuthorityAlertModalProps> = ({
                       style={{
                         padding: "8px 10px",
                         borderRadius: "8px",
-                        fontSize: "0.74rem",
-                        fontWeight: channel === ch.id ? 700 : 500,
-                        border: channel === ch.id ? "1.5px solid var(--accent-burgundy)" : "1px solid var(--border-glass)",
-                        background: channel === ch.id ? "rgba(190, 18, 60, 0.15)" : "var(--bg-surface)",
-                        color: channel === ch.id ? "var(--accent-burgundy)" : "var(--text-secondary)",
+                        fontSize: "0.76rem",
+                        fontWeight: channel === ch.id ? 800 : 600,
+                        border: channel === ch.id ? "2px solid #0284c7" : "1px solid var(--border-glass)",
+                        background: channel === ch.id ? "rgba(2, 132, 199, 0.12)" : "#ffffff",
+                        color: channel === ch.id ? "#0284c7" : "var(--text-secondary)",
                         cursor: "pointer",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
                         gap: "6px",
+                        transition: "all 0.15s ease",
                       }}
                     >
                       {ch.icon}
@@ -604,8 +615,8 @@ export const AuthorityAlertModal: React.FC<AuthorityAlertModalProps> = ({
               </div>
 
               <div>
-                <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 700, color: "var(--text-primary)", marginBottom: "6px" }}>
-                  ✍️ Inspection Notes & Repair Directive:
+                <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 800, color: "var(--text-primary)", marginBottom: "6px" }}>
+                  ✍️ Inspection Notes &amp; Repair Directive:
                 </label>
                 <textarea
                   value={inspectorNotes}
@@ -613,15 +624,17 @@ export const AuthorityAlertModal: React.FC<AuthorityAlertModalProps> = ({
                   rows={3}
                   style={{
                     width: "100%",
-                    background: "var(--bg-surface)",
-                    color: "var(--text-primary)",
-                    border: "1px solid var(--border-glass)",
+                    background: "#ffffff",
+                    color: "#0f172a",
+                    border: "1.5px solid var(--border-glass)",
                     borderRadius: "8px",
                     padding: "10px 12px",
-                    fontSize: "0.78rem",
+                    fontSize: "0.8rem",
                     outline: "none",
                     resize: "none",
                     lineHeight: 1.4,
+                    fontWeight: 500,
+                    fontFamily: "inherit",
                   }}
                 />
               </div>
@@ -639,14 +652,19 @@ export const AuthorityAlertModal: React.FC<AuthorityAlertModalProps> = ({
                   type="button"
                   onClick={handleDispatch}
                   disabled={isSending}
-                  className="btn-cyber-danger"
                   style={{
                     padding: "10px 24px",
                     fontSize: "0.84rem",
+                    fontWeight: 800,
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                    border: "none",
+                    background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
+                    color: "#ffffff",
                     display: "inline-flex",
                     alignItems: "center",
                     gap: "8px",
-                    boxShadow: "0 0 20px rgba(255, 42, 95, 0.4)",
+                    boxShadow: "0 4px 14px rgba(239, 68, 68, 0.35)",
                   }}
                 >
                   {isSending ? (

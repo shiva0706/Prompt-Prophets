@@ -1,136 +1,185 @@
 import React from "react";
+import {
+  ShieldAlert,
+  Download,
+  Camera,
+  Navigation,
+  Wrench,
+  History,
+  RefreshCw,
+  Building2,
+  UploadCloud,
+  LayoutDashboard,
+} from "lucide-react";
 
 interface HeaderProps {
-  isSocketLive?: boolean;
+  isSocketLive: boolean;
   activeTab: string;
   setActiveTab: (tab: string) => void;
-  onExportReport?: () => void;
-  onRefreshInspection?: () => void;
-  isLoading?: boolean;
-  theme?: "dark" | "light";
-  setTheme?: (theme: "dark" | "light") => void;
+  onExportReport: () => void;
+  onRefreshInspection: () => void;
+  isLoading: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({
-  isSocketLive = true,
+  isSocketLive,
   activeTab,
   setActiveTab,
   onExportReport,
   onRefreshInspection,
-  isLoading = false,
-  theme,
-  setTheme,
+  isLoading,
 }) => {
-  const navTabs = [
-    {
-      id: "inspection",
-      icon: "▧",
-      line1: "Detect",
-      line2: "Location",
-    },
-    {
-      id: "copilot",
-      icon: "♙",
-      line1: "AI Engineering",
-      line2: "Copilot",
-    },
-    {
-      id: "gis_map",
-      icon: "⌖",
-      line1: "GIS Route &",
-      line2: "Telemetry",
-    },
-    {
-      id: "authority_alerts",
-      icon: "♜",
-      line1: "Authority",
-      line2: "Dispatch",
-    },
-    {
-      id: "maintenance",
-      icon: "⚒",
-      line1: "Maintenance Work",
-      line2: "Orders",
-    },
-    {
-      id: "historical",
-      icon: "▥",
-      line1: "Temporal",
-      line2: "Analytics",
-    },
+  const tabs = [
+    { id: "home", label: "Executive Overview", icon: LayoutDashboard },
+    { id: "inspection", label: "Defect Localization", icon: Camera },
+    { id: "image_scan", label: "Video Analysis", icon: UploadCloud },
+    { id: "gis_map", label: "GIS Route & Telemetry", icon: Navigation },
+    { id: "authority_alerts", label: "Authority Dispatch Center", icon: Building2 },
+    { id: "maintenance", label: "Maintenance Work Orders", icon: Wrench },
+    { id: "historical", label: "Temporal Analytics", icon: History },
   ];
 
   return (
-    <header className="topbar">
-      {/* Brand Logo & Title */}
-      <div className="brand" onClick={() => setActiveTab("copilot")}>
-        <span className="logo">♢</span>
-        <span>
-          RoadVision<br />AI
-        </span>
+    <header
+      className="glass-panel"
+      style={{
+        padding: "16px 22px",
+        marginBottom: "20px",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        flexWrap: "wrap",
+        gap: "16px",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+        <div
+          style={{
+            width: "42px",
+            height: "42px",
+            borderRadius: "10px",
+            background: "linear-gradient(135deg, #0284c7 0%, #0369a1 100%)",
+            border: "1px solid rgba(255, 255, 255, 0.4)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            boxShadow: "0 2px 10px rgba(2, 132, 199, 0.3)",
+          }}
+        >
+          <ShieldAlert size={22} color="#ffffff" />
+        </div>
+        <div>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
+            <h1
+              style={{
+                fontSize: "1.28rem",
+                fontWeight: 800,
+                letterSpacing: "-0.4px",
+                color: "var(--text-primary)",
+                margin: 0,
+              }}
+            >
+              RoadVision AI <span style={{ color: "var(--text-muted)", fontWeight: 500, fontSize: "1.05rem" }}>Platform</span>
+            </h1>
+            <span className="cyber-badge badge-cyan" style={{ fontSize: "0.68rem" }}>
+              Automated Highway Vision
+            </span>
+          </div>
+          <p
+            style={{
+              fontSize: "0.78rem",
+              color: "var(--text-muted)",
+              marginTop: "2px",
+              marginBottom: 0,
+              fontWeight: 500,
+            }}
+          >
+            Pavement Condition Intelligence • 4-Tier Severity • GPS Risk Segments • DOT Authority Dispatch
+          </p>
+        </div>
       </div>
 
-      {/* Navigation Links */}
-      <nav className="nav">
-        {navTabs.map((tab) => {
+      <div
+        style={{
+          display: "flex",
+          background: "var(--bg-surface)",
+          padding: "4px",
+          borderRadius: "10px",
+          border: "1px solid var(--border-glass)",
+          gap: "3px",
+          flexWrap: "wrap",
+        }}
+      >
+        {tabs.map((tab) => {
+          const Icon = tab.icon;
           const isActive = activeTab === tab.id;
           return (
             <button
               key={tab.id}
-              className={`nav-link ${isActive ? "active" : ""}`}
               onClick={() => setActiveTab(tab.id)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
+                padding: "7px 13px",
+                borderRadius: "7px",
+                border: isActive ? "1px solid var(--tab-active-border)" : "1px solid transparent",
+                fontSize: "0.8rem",
+                fontWeight: isActive ? 700 : 500,
+                color: isActive ? "var(--tab-active-text)" : "var(--text-muted)",
+                background: isActive ? "var(--tab-active-bg)" : "transparent",
+                boxShadow: isActive ? "0 1px 4px rgba(0, 0, 0, 0.15)" : "none",
+                cursor: "pointer",
+                transition: "all 0.18s ease",
+              }}
             >
-              <span>{tab.icon}&nbsp; {tab.line1}</span>
-              <br />
-              <span>{tab.line2}</span>
+              <Icon size={14} color={isActive ? "var(--accent-cyan)" : "currentColor"} />
+              <span>{tab.label}</span>
             </button>
           );
         })}
-      </nav>
-
-      {/* Toolbar */}
-      <div className="toolbar">
-        {onExportReport && (
-          <button
-            className="toolbar-btn"
-            onClick={onExportReport}
-            title="Export Inspection Report"
-          >
-            ⇩
-          </button>
-        )}
-        {onRefreshInspection && (
-          <button
-            className="toolbar-btn"
-            onClick={onRefreshInspection}
-            title="Refresh Inspection Data"
-          >
-            <span className={isLoading ? "animate-spin" : ""}>⟳</span>
-          </button>
-        )}
-        {setTheme && (
-          <button
-            className="toolbar-btn"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            title={`Switch to ${theme === "dark" ? "Light" : "Dark"} Mode`}
-          >
-            {theme === "dark" ? "☼" : "☾"}
-          </button>
-        )}
       </div>
 
-      {/* Live System Status */}
-      <div className="status">
-        <i className={isSocketLive ? "online" : ""}>●</i>
-        <span>{isSocketLive ? "System Online" : "Connecting..."}</span>
-      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+        <div
+          className="cyber-badge badge-emerald"
+          style={{
+            fontSize: "0.72rem",
+            padding: "5px 10px",
+          }}
+        >
+          <span
+            style={{
+              width: "6px",
+              height: "6px",
+              borderRadius: "50%",
+              background: isSocketLive ? "var(--accent-emerald)" : "var(--accent-amber)",
+              display: "inline-block",
+            }}
+          />
+          {isSocketLive ? "INSPECTION ACTIVE" : "LOCAL READY"}
+        </div>
 
-      {/* User Profile */}
-      <div className="user">
-        <span className="avatar">RS</span>
-        <span>
-          Ravi<br />Shankar
-        </span>
+        <button
+          onClick={onRefreshInspection}
+          className="btn-cyber-secondary"
+          disabled={isLoading}
+          title="Refresh Road Inspection Data"
+          style={{ padding: "7px 12px", fontSize: "0.78rem", display: "flex", alignItems: "center", gap: "5px" }}
+        >
+          <RefreshCw className={isLoading ? "animate-spin" : ""} size={13} />
+          <span>Refresh</span>
+        </button>
+
+        <button
+          onClick={onExportReport}
+          className="btn-cyber-primary"
+          title="Export Full Inspection Dossier (JSON)"
+          style={{ padding: "7px 14px", fontSize: "0.78rem", display: "flex", alignItems: "center", gap: "6px" }}
+        >
+          <Download size={13} />
+          <span>Export Dossier</span>
+        </button>
       </div>
     </header>
   );

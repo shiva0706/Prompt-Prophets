@@ -12,39 +12,44 @@ if backend_dir not in sys.path:
 if root_dir not in sys.path:
     sys.path.insert(0, root_dir)
 
-from fastapi import FastAPI ,WebSocket ,WebSocketDisconnect ,UploadFile ,File ,Form ,HTTPException 
-from fastapi .middleware .cors import CORSMiddleware 
-from pydantic import BaseModel ,Field 
-from typing import Dict ,Any ,List ,Optional 
-import json 
-import asyncio 
-import io 
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, UploadFile, File, Form, HTTPException
+from fastapi.responses import RedirectResponse, HTMLResponse
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field
+from typing import Dict, Any, List, Optional
+import json
+import asyncio
+import io
 import time
-import pandas as pd 
-from agents .orchestrator import MultiAgentOrchestrator 
+import pandas as pd
+from agents.orchestrator import MultiAgentOrchestrator
 
 try:
     from backend.routes.copilot import router as copilot_router
 except ImportError:
     from routes.copilot import router as copilot_router
 
-app =FastAPI (
-title ="NexusAI Multi-Agent Collaborative Intelligence Platform",
-version ="1.0.0",
-description ="Multi-Agent System for Data Ingestion, Preprocessing, ML Forecasting, and UI Synthesis."
+app = FastAPI(
+    title="NexusAI Multi-Agent Collaborative Intelligence Platform",
+    version="1.0.0",
+    description="Multi-Agent System for Data Ingestion, Preprocessing, ML Forecasting, and UI Synthesis."
 )
 
-app .add_middleware (
-CORSMiddleware ,
-allow_origins =["*"],
-allow_credentials =True ,
-allow_methods =["*"],
-allow_headers =["*"],
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 app.include_router(copilot_router)
 
-orchestrator =MultiAgentOrchestrator ()
+@app.get("/")
+async def root():
+    return RedirectResponse(url="http://localhost:5173/")
+
+orchestrator = MultiAgentOrchestrator()
 
 class PipelineConfigRequest (BaseModel ):
     domain :str =Field (default ="energy_grid",description ="Domain preset: energy_grid, road_telemetry, financial_market, iot_sensors, custom")

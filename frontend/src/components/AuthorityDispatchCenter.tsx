@@ -308,8 +308,8 @@ export const AuthorityDispatchCenter: React.FC<AuthorityDispatchCenterProps> = (
                       <span className="code-font" style={{ fontSize: "0.95rem", fontWeight: 800, color: "var(--accent-cyan)" }}>
                         DOCKET #{disp.docket_id}
                       </span>
-                      <span className={`cyber-badge ${disp.severity_level === "Critical" ? "badge-rose badge-critical-blink" : "badge-amber badge-warning-blink"}`} style={{ fontSize: "0.68rem" }}>
-                        <span className={disp.severity_level === "Critical" ? "dot-critical-fast" : "dot-warning-slow"} style={{ width: "5px", height: "5px", borderRadius: "50%", background: "currentColor" }} />
+                      <span className={`cyber-badge ${disp.severity_level === "Critical" ? "badge-rose" : "badge-amber"}`} style={{ fontSize: "0.68rem" }}>
+                        <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: disp.severity_level === "Critical" ? "#ef4444" : "#f59e0b" }} />
                         {disp.severity_level.toUpperCase()} HAZARD
                       </span>
                       <span

@@ -212,8 +212,8 @@ export const HistoricalAnalytics: React.FC<HistoricalAnalyticsProps> = ({ report
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
-          <span className="cyber-badge badge-amber badge-medium-blink" style={{ fontSize: "0.72rem" }}>
-            <span className="dot-medium-slow" style={{ width: "5px", height: "5px", borderRadius: "50%", background: "#f59e0b" }} />
+          <span className="cyber-badge badge-amber" style={{ fontSize: "0.72rem" }}>
+            <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: "#f59e0b" }} />
             Degradation Velocity: -1.9 PCI / Mo
           </span>
           <span className="cyber-badge badge-cyan" style={{ fontSize: "0.72rem" }}>
@@ -621,7 +621,7 @@ export const HistoricalAnalytics: React.FC<HistoricalAnalyticsProps> = ({ report
                   <span style={{ fontSize: "0.94rem", fontWeight: 800, color: "var(--text-primary)" }}>
                     {item.cycle}
                   </span>
-                  <span className={`cyber-badge ${isLive ? "badge-rose badge-critical-blink" : isMid ? "badge-amber" : "badge-emerald"}`} style={{ fontSize: "0.68rem" }}>
+                  <span className={`cyber-badge ${isLive ? "badge-rose" : isMid ? "badge-amber" : "badge-emerald"}`} style={{ fontSize: "0.68rem" }}>
                     <Calendar size={10} />
                     {item.date}
                   </span>

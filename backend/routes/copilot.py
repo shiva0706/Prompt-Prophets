@@ -19,6 +19,7 @@ try:
         get_all_segments,
         get_segments_by_road
     )
+    from backend.agents.llama_engine import llama_engine
 except ImportError:
     from agents.copilot_agent import (
         copilot_agent,
@@ -32,6 +33,7 @@ except ImportError:
         get_all_segments,
         get_segments_by_road
     )
+    from agents.llama_engine import llama_engine
 
 router = APIRouter(prefix="/api/copilot", tags=["Civil Engineering Copilot"])
 
@@ -51,6 +53,33 @@ class DraftWorkOrderRequest(BaseModel):
     notes: Optional[str] = Field(default=None, description="Special engineering notes or instructions")
 
 
+class ProviderConfigRequest(BaseModel):
+    provider: Optional[str] = Field(default="auto", description="auto, groq, ollama, fallback")
+    groq_api_key: Optional[str] = Field(default=None, description="Groq API key")
+    ollama_host: Optional[str] = Field(default=None, description="Ollama host URL")
+    llama_model: Optional[str] = Field(default=None, description="LLaMA model identifier")
+
+
+@router.get("/provider-status")
+async def get_llama_provider_status():
+    """Retrieve status of active LLaMA model, Groq connectivity, and local Ollama."""
+    return llama_engine.get_provider_status()
+
+
+@router.post("/provider-config")
+async def configure_llama_provider(config: ProviderConfigRequest):
+    """Dynamically update LLaMA model provider, Groq key, or local Ollama host."""
+    if config.provider:
+        llama_engine.preferred_provider = config.provider
+    if config.groq_api_key:
+        llama_engine.groq_api_key = config.groq_api_key
+    if config.ollama_host:
+        llama_engine.ollama_host = config.ollama_host
+    if config.llama_model:
+        llama_engine.default_model = config.llama_model
+    return {"status": "configured", "provider_status": llama_engine.get_provider_status()}
+
+
 @router.post("/chat", response_model=AgentResponse)
 async def copilot_chat(request: QueryRequest):
     """
@@ -61,7 +90,7 @@ async def copilot_chat(request: QueryRequest):
         if not request.query or not request.query.strip():
             raise HTTPException(status_code=400, detail="Query prompt cannot be empty.")
         
-        response = copilot_agent.process_query(
+        response = await copilot_agent.process_query_async(
             query=request.query,
             context=request.context
         )
@@ -191,3 +220,79 @@ async def list_available_roads():
         return {"corridors": results}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+class LangGraphQueryRequest(BaseModel):
+    query: str = Field(..., description="Natural language civil engineering prompt")
+    road_name: Optional[str] = Field(default=None, description="Optional corridor name")
+    min_sri: Optional[float] = Field(default=None, description="Optional minimum Segment Risk Index")
+    max_pci: Optional[float] = Field(default=None, description="Optional maximum Pavement Condition Index")
+    context: Optional[Dict[str, Any]] = Field(default=None, description="Optional extra context")
+
+
+# =====================================================================
+# LangGraph Workflow Endpoints
+# =====================================================================
+
+@router.post("/langgraph-chat")
+async def langgraph_agent_chat(request: LangGraphQueryRequest):
+    """
+    Executes the multi-agent LangGraph StateGraph pipeline for autonomous civil engineering reasoning.
+    """
+    try:
+        from backend.agents.langgraph_workflow import run_langgraph_civil_engineering_agent
+        result = await run_langgraph_civil_engineering_agent(
+            user_query=request.query,
+            road_name=request.road_name,
+            min_sri=request.min_sri,
+            max_pci=request.max_pci
+        )
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"LangGraph execution error: {str(e)}")
+
+
+@router.get("/langgraph-info")
+async def langgraph_workflow_info():
+    """
+    Returns the LangGraph StateGraph topology, nodes, edges, and state specification.
+    """
+    return {
+        "framework": "LangGraph & LangChain Core",
+        "state_graph_version": "1.2.11",
+        "nodes": [
+            {
+                "id": "scout_filter",
+                "name": "Spatial Segment Scout",
+                "description": "Scouts road segments and filters hazard inventory by corridor & risk criteria."
+            },
+            {
+                "id": "engineering_bom",
+                "name": "Civil Engineering & BOM Engine",
+                "description": "Calculates MoRTH Section 500 & IRC:82-2015 material quantities and Indian market rates."
+            },
+            {
+                "id": "work_order_dispatch",
+                "name": "Municipal Work Order Dispatcher",
+                "description": "Generates formal municipal work orders and emergency SLA directives."
+            },
+            {
+                "id": "executive_synthesis",
+                "name": "LLaMA Synthesis & Verdict Node",
+                "description": "Synthesizes structured authoritative engineering verdict and action steps."
+            }
+        ],
+        "edges": [
+            {"from": "START", "to": "scout_filter"},
+            {"from": "scout_filter", "to": "engineering_bom"},
+            {"from": "engineering_bom", "to": "work_order_dispatch"},
+            {"from": "work_order_dispatch", "to": "executive_synthesis"},
+            {"from": "executive_synthesis", "to": "END"}
+        ],
+        "state_schema": [
+            "user_query", "road_name", "matched_segments", "total_defects_count",
+            "bill_of_materials", "work_order", "engineering_verdict", "execution_steps", "messages"
+        ],
+        "status": "ONLINE"
+    }
+

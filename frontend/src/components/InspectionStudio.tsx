@@ -77,11 +77,11 @@ export const InspectionStudio: React.FC<InspectionStudioProps> = ({ report, onOp
   const getSeverityBadgeClass = (level: string) => {
     switch (level) {
       case "Critical":
-        return "badge-rose badge-critical-blink";
+        return "badge-rose";
       case "High":
-        return "badge-amber badge-medium-blink";
+        return "badge-amber";
       case "Medium":
-        return "badge-violet badge-medium-blink";
+        return "badge-violet";
       default:
         return "badge-emerald";
     }
@@ -207,12 +207,12 @@ export const InspectionStudio: React.FC<InspectionStudioProps> = ({ report, onOp
 
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               {customDetection.has_water_filled_pothole || customDetection.has_pothole ? (
-                <span className="cyber-badge badge-rose badge-critical-blink" style={{ fontSize: "0.75rem", padding: "6px 12px" }}>
-                  🔴 CRITICAL HAZARD (FAST BLINK)
+                <span className="cyber-badge badge-rose" style={{ fontSize: "0.75rem", padding: "6px 12px" }}>
+                  🔴 CRITICAL HAZARD (&lt; 24h SLA)
                 </span>
               ) : customDetection.has_crack ? (
-                <span className="cyber-badge badge-amber badge-warning-blink" style={{ fontSize: "0.75rem", padding: "6px 12px" }}>
-                  🟡 WARNING / MEDIUM (SLOW BLINK)
+                <span className="cyber-badge badge-amber" style={{ fontSize: "0.75rem", padding: "6px 12px" }}>
+                  🟡 WARNING / HIGH PRIORITY
                 </span>
               ) : (
                 <span className="cyber-badge badge-emerald" style={{ fontSize: "0.75rem", padding: "6px 12px" }}>
@@ -287,9 +287,9 @@ export const InspectionStudio: React.FC<InspectionStudioProps> = ({ report, onOp
                 <span
                   className={`cyber-badge ${
                     customDetection.has_water_filled_pothole || customDetection.has_pothole
-                      ? "badge-rose badge-critical-blink"
+                      ? "badge-rose"
                       : customDetection.has_crack
-                      ? "badge-amber badge-warning-blink"
+                      ? "badge-amber"
                       : "badge-emerald"
                   }`}
                   style={{ fontSize: "0.68rem" }}
@@ -364,12 +364,9 @@ export const InspectionStudio: React.FC<InspectionStudioProps> = ({ report, onOp
 
                 <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", background: "var(--bg-surface)", padding: "8px 10px", borderRadius: "6px" }}>
                   <div>
-                    <div style={{ fontSize: "0.68rem", color: "var(--text-muted)", fontWeight: 700 }}>💰 Estimated Repair Budget:</div>
-                    <div style={{ fontSize: "0.95rem", fontWeight: 800, color: "var(--accent-amber)", marginTop: "2px" }}>
-                      ₹{(customDetection.total_estimated_cost_inr || (customDetection.has_water_filled_pothole ? 3800 : customDetection.has_pothole ? 3200 : 1800)).toLocaleString("en-IN")} INR
-                      <span style={{ fontSize: "0.72rem", color: "var(--text-muted)", marginLeft: "4px" }}>
-                        (${customDetection.total_estimated_cost_usd || (customDetection.has_water_filled_pothole ? 46 : customDetection.has_pothole ? 38 : 22)} USD)
-                      </span>
+                    <div style={{ fontSize: "0.68rem", color: "var(--text-muted)", fontWeight: 700 }}>🛠️ Execution Priority:</div>
+                    <div style={{ fontSize: "0.92rem", fontWeight: 800, color: "var(--accent-amber)", marginTop: "2px" }}>
+                      {customDetection.has_water_filled_pothole || customDetection.has_pothole ? "EMERGENCY (<24h SLA)" : "HIGH PRIORITY (<7d SLA)"}
                     </div>
                   </div>
 

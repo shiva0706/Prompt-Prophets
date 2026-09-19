@@ -18,6 +18,7 @@ try:
         get_segments_by_road,
         get_segment_by_id
     )
+    from backend.agents.llama_engine import llama_engine
 except ImportError:
     from data.mock_road_network import (
         MOCK_ROAD_NETWORK,
@@ -25,6 +26,7 @@ except ImportError:
         get_segments_by_road,
         get_segment_by_id
     )
+    from agents.llama_engine import llama_engine
 
 
 # =====================================================================
@@ -471,6 +473,13 @@ class CivilEngineeringTools:
             rate_per_hour_inr=400.0,
             total_cost_inr=round(6 * est_work_hours * 400.0, 2)
         ))
+        labor.append(LaborItem(
+            role="Skilled Traffic Safety Flagmen & General Highway Workers",
+            crew_count=4,
+            duration_hours=est_work_hours,
+            rate_per_hour_inr=250.0,
+            total_cost_inr=round(4 * est_work_hours * 250.0, 2)
+        ))
 
         subtotal_mat = sum(m.total_cost_inr for m in materials)
         subtotal_mach = sum(m.total_cost_inr for m in machinery)
@@ -740,13 +749,21 @@ class CivilEngineeringCopilot:
         ))
 
         # 7. Synthesize Response
+        provider_status = llama_engine.get_provider_status()
+        tools_called.append(AgentThoughtStep(
+            tool_name="llama_agentic_reasoning_core",
+            input_args={"provider": provider_status["active_provider"], "model": provider_status["model_name"]},
+            output_summary=f"Synthesized autonomous engineering brief via {provider_status['active_provider']}"
+        ))
+
         response_md = self._synthesize_response(
             query=query,
             road=target_road,
             segments=matched_segments,
             bom=bom,
             decision=decision,
-            work_order=work_order
+            work_order=work_order,
+            provider_label=provider_status["active_provider"]
         )
 
         suggestions = [
@@ -768,6 +785,36 @@ class CivilEngineeringCopilot:
             suggestions=suggestions
         )
 
+    async def process_query_async(self, query: str, context: Optional[Dict[str, Any]] = None) -> AgentResponse:
+        """Asynchronous execution leveraging live LLaMA endpoints when available."""
+        # Initial tool evaluation
+        base_resp = self.process_query(query=query, context=context)
+
+        # Send to LLaMA agent engine
+        context_payload = {
+            "query": query,
+            "target_road": base_resp.segments_matched[0]["road_name"] if base_resp.segments_matched else "Corridor",
+            "segments_count": len(base_resp.segments_matched),
+            "estimated_pci": round(sum(s.get("pci", 50.0) for s in base_resp.segments_matched) / max(1, len(base_resp.segments_matched)), 1) if base_resp.segments_matched else 50.0,
+            "total_cost_inr": base_resp.bill_of_materials.total_cost_inr if base_resp.bill_of_materials else 0,
+            "work_order_id": base_resp.work_order.work_order_id if base_resp.work_order else "N/A"
+        }
+
+        try:
+            llama_result = await llama_engine.execute_agentic_prompt(
+                user_query=query,
+                context_data=context_payload
+            )
+            if llama_result and llama_result.get("text"):
+                # Prepend LLaMA reasoning to the structured tables
+                enhanced_text = f"### 🦙 LLaMA Agentic Executive Brief ({llama_result.get('provider', 'LLaMA-3.3')})\n\n"
+                enhanced_text += llama_result["text"] + "\n\n---\n\n" + base_resp.response_text
+                base_resp.response_text = enhanced_text
+        except Exception as err:
+            print(f"[CopilotAgent] LLaMA async reasoning warning: {err}")
+
+        return base_resp
+
     def _synthesize_response(
         self,
         query: str,
@@ -775,7 +822,8 @@ class CivilEngineeringCopilot:
         segments: List[Dict[str, Any]],
         bom: Optional[BillOfMaterials],
         decision: DecisionVerdict,
-        work_order: Optional[WorkOrderDetails]
+        work_order: Optional[WorkOrderDetails],
+        provider_label: str = "LLaMA Agentic Engine"
     ) -> str:
         """Constructs a structured decision brief in Markdown."""
         lines = []

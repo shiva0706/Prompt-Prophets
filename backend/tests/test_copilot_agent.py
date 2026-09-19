@@ -152,3 +152,33 @@ def test_fastapi_auxiliary_endpoints(client):
     resp_bom = client.post("/api/copilot/calculate-bom", json={"road_name": "NH-44"})
     assert resp_bom.status_code == 200
     assert resp_bom.json()["total_cost_inr"] > 0
+
+
+def test_langgraph_workflow_and_chat(client):
+    """
+    Test 6: Verify LangGraph StateGraph Multi-Agent execution pipeline and topology info.
+    """
+    # 1. Info endpoint
+    resp_info = client.get("/api/copilot/langgraph-info")
+    assert resp_info.status_code == 200
+    info_data = resp_info.json()
+    assert info_data["framework"] == "LangGraph & LangChain Core"
+    assert len(info_data["nodes"]) == 4
+    assert len(info_data["edges"]) == 5
+
+    # 2. Chat endpoint through LangGraph
+    payload = {
+        "query": "Identify all severe potholes on Rajiv Gandhi Salai OMR and draft an emergency repair work order",
+        "road_name": "Rajiv Gandhi Salai / SH-49A (OMR IT Expressway)",
+        "max_pci": 45.0
+    }
+    resp_lg = client.post("/api/copilot/langgraph-chat", json=payload)
+    assert resp_lg.status_code == 200
+    data = resp_lg.json()
+    assert data["success"] is True
+    assert data["engine"] == "LangGraph (StateGraph Multi-Agent Architecture)"
+    assert data["total_segments_matched"] > 0
+    assert data["bill_of_materials"] is not None
+    assert data["work_order"] is not None
+    assert len(data["execution_steps"]) >= 4
+

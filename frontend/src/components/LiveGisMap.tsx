@@ -25,146 +25,8 @@ const TILE_LAYERS = {
   },
 };
 
-const CORRIDOR_MAP_DATA: Record<
-  string,
-  {
-    center: [number, number];
-    zoom: number;
-    town1: { name: string; pos: [number, number] };
-    town2: { name: string; pos: [number, number] };
-    segments: Array<{
-      coords: [number, number][];
-      color: string;
-      label: string;
-      severity: "Critical" | "Moderate" | "Healthy";
-      desc: string;
-    }>;
-  }
-> = {
-  "NH-44": {
-    center: [11.275, 77.5828],
-    zoom: 12,
-    town1: { name: "Perundurai", pos: [11.277, 77.585] },
-    town2: { name: "Erode", pos: [11.341, 77.717] },
-    segments: [
-      {
-        coords: [
-          [11.23, 77.52],
-          [11.25, 77.55],
-          [11.275, 77.5828],
-        ],
-        color: "#ef4444",
-        label: "Km 537 - 542",
-        severity: "Critical",
-        desc: "Pavement Rutting (3.8 cm) • Critical Repair SLA < 24h",
-      },
-      {
-        coords: [
-          [11.275, 77.5828],
-          [11.3, 77.62],
-        ],
-        color: "#f59c0b",
-        label: "Km 541 - 426",
-        severity: "Moderate",
-        desc: "Alligator Cracking • Scheduled Patching",
-      },
-      {
-        coords: [
-          [11.3, 77.62],
-          [11.34, 77.68],
-        ],
-        color: "#10b981",
-        label: "Km 548 - 552",
-        severity: "Healthy",
-        desc: "Pavement in Good Condition • IRI 1.8 m/km",
-      },
-    ],
-  },
-  "NH-48": {
-    center: [18.5204, 73.8567],
-    zoom: 12,
-    town1: { name: "Pune", pos: [18.5204, 73.8567] },
-    town2: { name: "Satara", pos: [18.6000, 73.9300] },
-    segments: [
-      {
-        coords: [
-          [18.45, 73.8],
-          [18.52, 73.8567],
-        ],
-        color: "#f59c0b",
-        label: "Km 312 - 426",
-        severity: "Moderate",
-        desc: "Moderate Transverse Cracks • Maintenance Alert",
-      },
-      {
-        coords: [
-          [18.52, 73.8567],
-          [18.6, 73.93],
-        ],
-        color: "#10b981",
-        label: "Km 426 - 510",
-        severity: "Healthy",
-        desc: "Healthy Pavement Surface",
-      },
-    ],
-  },
-  "NH-16": {
-    center: [16.5062, 80.648],
-    zoom: 12,
-    town1: { name: "Vijayawada", pos: [16.5062, 80.648] },
-    town2: { name: "Guntur", pos: [16.45, 80.59] },
-    segments: [
-      {
-        coords: [
-          [16.45, 80.59],
-          [16.5062, 80.648],
-          [16.54, 80.68],
-        ],
-        color: "#10b981",
-        label: "Km 27 - 98",
-        severity: "Healthy",
-        desc: "Smooth Highway Deck • ASTM Compliant",
-      },
-    ],
-  },
-  "NH-27": {
-    center: [24.5854, 73.7125],
-    zoom: 12,
-    town1: { name: "Udaipur", pos: [24.5854, 73.7125] },
-    town2: { name: "Chittorgarh", pos: [24.61, 73.74] },
-    segments: [
-      {
-        coords: [
-          [24.54, 73.66],
-          [24.5854, 73.7125],
-        ],
-        color: "#f59c0b",
-        label: "Km 145 - 178",
-        severity: "Moderate",
-        desc: "Surface Raveling Detected",
-      },
-    ],
-  },
-  "NH-75": {
-    center: [12.9716, 77.5946],
-    zoom: 12,
-    town1: { name: "Bengaluru", pos: [12.9716, 77.5946] },
-    town2: { name: "Hassan", pos: [13.01, 77.63] },
-    segments: [
-      {
-        coords: [
-          [12.93, 77.54],
-          [12.9716, 77.5946],
-          [13.01, 77.63],
-        ],
-        color: "#10b981",
-        label: "Km 83 - 120",
-        severity: "Healthy",
-        desc: "Resurfaced Express Lane",
-      },
-    ],
-  },
-};
+import { CORRIDOR_MAP_DATA } from "../data/corridorGisData";
+
 
 export const LiveGisMap: React.FC<LiveGisMapProps> = ({ selectedCorridor }) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -240,14 +102,15 @@ export const LiveGisMap: React.FC<LiveGisMapProps> = ({ selectedCorridor }) => {
       map.invalidateSize();
     }, 200);
 
-    // Render road segments as colored polylines
+    // Render road segments as colored polylines following real highway asphalt
     corridorData.segments.forEach((seg) => {
       // Glow outer line
       L.polyline(seg.coords, {
         color: seg.color,
-        weight: 8,
+        weight: 7,
         opacity: 0.35,
         lineCap: "round",
+        lineJoin: "round",
       }).addTo(group);
 
       // Core route line
@@ -256,6 +119,7 @@ export const LiveGisMap: React.FC<LiveGisMapProps> = ({ selectedCorridor }) => {
         weight: 4,
         opacity: 0.95,
         lineCap: "round",
+        lineJoin: "round",
       }).addTo(group);
 
       // Popup on line click

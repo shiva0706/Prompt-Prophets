@@ -1,0 +1,23 @@
+# Ultralytics YOLOv8 Dataset Configuration for RDD2022
+# Road Damage Detection Challenge (Japan, India, Czech, Norway, USA, China)
+
+path: D:/hackathon/dataset  # dataset root dir
+train: images/train  # train images (relative to 'path')
+val: images/val      # val images (relative to 'path')
+
+# Classes definition
+names:
+  0: D00  # Longitudinal Crack (Linear crack along travel direction)
+  1: D10  # Transverse Crack (Linear crack across travel direction)
+  2: D20  # Alligator Crack (Fatigue mesh cracking)
+  3: D40  # Pothole (Cavity / depression)
+
+# Additional metadata
+metadata:
+  classes_extended:
+    0: "Longitudinal_Crack"
+    1: "Transverse_Crack"
+    2: "Alligator_Crack"
+    3: "Pothole"
+  target_resolution: [1080, 1920]
+  detector_architecture: "YOLOv8-S"

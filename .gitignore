@@ -1,0 +1,40 @@
+# Python virtual environments & bytecode
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+*.pytest_cache/
+.coverage
+htmlcov/
+
+# Node & Frontend dependencies and build artifacts
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+frontend/dist-ssr/
+*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Large dataset raw folders and archives
+dataset/raw_rdd2022/
+datasets/rdd2022_repo/
+*.tar.gz
+*.zip
+
+# Large binary weights (downloadable via scripts or huggingface)
+weights/depth_anything_v2_vits.pth
+*.pth
+
+# IDE & agent state
+.agents/
+.claude/
+.vscode/
+.idea/
+.DS_Store
+*.log
+*.tmp

@@ -1,0 +1,11 @@
+frame_idx,frame_file,timestamp,latitude,longitude,altitude,speed_kmh,cum_dist_m,state,corridor
+0,frame_000.jpg,1718000000.0,12.9886,80.24795,12.0,43.9,0.0,Tamil Nadu,Chennai - OMR (Rajiv Gandhi Salai Expressway)
+1,frame_001.jpg,1718000003.6,12.98815,80.24793,12.1,46.5,50.0,Tamil Nadu,Chennai - OMR (Rajiv Gandhi Salai Expressway)
+2,frame_002.jpg,1718000007.2,12.9877,80.24791,12.2,45.4,100.0,Tamil Nadu,Chennai - OMR (Rajiv Gandhi Salai Expressway)
+3,frame_003.jpg,1718000010.8,12.98725,80.24789,12.3,45.4,150.0,Tamil Nadu,Chennai - OMR (Rajiv Gandhi Salai Expressway)
+4,frame_004.jpg,1718000014.4,12.9868,80.247869,12.4,46.6,200.0,Tamil Nadu,Chennai - OMR (Rajiv Gandhi Salai Expressway)
+5,frame_005.jpg,1718000018.0,12.98635,80.247849,12.5,44.6,250.0,Tamil Nadu,Chennai - OMR (Rajiv Gandhi Salai Expressway)
+6,frame_006.jpg,1718000021.6,12.9859,80.247829,12.6,45.3,300.0,Tamil Nadu,Chennai - OMR (Rajiv Gandhi Salai Expressway)
+7,frame_007.jpg,1718000025.2,12.98545,80.247809,12.7,45.7,350.0,Tamil Nadu,Chennai - OMR (Rajiv Gandhi Salai Expressway)
+8,frame_008.jpg,1718000028.8,12.985,80.247789,12.8,44.0,400.0,Tamil Nadu,Chennai - OMR (Rajiv Gandhi Salai Expressway)
+9,frame_009.jpg,1718000032.4,12.98455,80.247769,12.9,46.0,450.0,Tamil Nadu,Chennai - OMR (Rajiv Gandhi Salai Expressway)

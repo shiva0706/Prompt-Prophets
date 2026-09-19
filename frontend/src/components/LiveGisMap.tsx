@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { Navigation } from "lucide-react";
+import { Navigation, Maximize2, Minimize2, RotateCcw } from "lucide-react";
 
 interface LiveGisMapProps {
   selectedCorridor: string;
@@ -173,6 +173,7 @@ export const LiveGisMap: React.FC<LiveGisMapProps> = ({ selectedCorridor }) => {
   const layersGroupRef = useRef<L.LayerGroup | null>(null);
 
   const [activeLayer, setActiveLayer] = useState<"satellite" | "map" | "layer">("satellite");
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
 
   const corridorData = CORRIDOR_MAP_DATA[selectedCorridor] || CORRIDOR_MAP_DATA["NH-44"];
 
@@ -198,6 +199,11 @@ export const LiveGisMap: React.FC<LiveGisMapProps> = ({ selectedCorridor }) => {
     tileLayerRef.current = tileLayer;
     layersGroupRef.current = layerGroup;
     mapInstanceRef.current = map;
+
+    // Ensure Leaflet tiles calculate container dimensions cleanly
+    setTimeout(() => {
+      map.invalidateSize();
+    }, 150);
 
     return () => {
       map.remove();
@@ -230,6 +236,9 @@ export const LiveGisMap: React.FC<LiveGisMapProps> = ({ selectedCorridor }) => {
 
     // Fly to new corridor center smoothly
     map.flyTo(corridorData.center, corridorData.zoom, { duration: 1.2 });
+    setTimeout(() => {
+      map.invalidateSize();
+    }, 200);
 
     // Render road segments as colored polylines
     corridorData.segments.forEach((seg) => {
@@ -317,6 +326,14 @@ export const LiveGisMap: React.FC<LiveGisMapProps> = ({ selectedCorridor }) => {
     if (corridorData.town2) createTownMarker(corridorData.town2.name, corridorData.town2.pos);
   }, [selectedCorridor]);
 
+  // Invalidate map dimensions on fullscreen toggle
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      mapInstanceRef.current?.invalidateSize();
+    }, 120);
+    return () => clearTimeout(timer);
+  }, [isFullscreen]);
+
   const handleZoomIn = () => {
     mapInstanceRef.current?.zoomIn();
   };
@@ -325,56 +342,130 @@ export const LiveGisMap: React.FC<LiveGisMapProps> = ({ selectedCorridor }) => {
     mapInstanceRef.current?.zoomOut();
   };
 
+  const handleRecenter = () => {
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current.flyTo(corridorData.center, corridorData.zoom, { duration: 0.8 });
+    }
+  };
+
+  const toggleFullscreen = () => {
+    setIsFullscreen((prev) => !prev);
+  };
+
   return (
-    <section className="card mapcard" style={{ padding: "16px", overflow: "hidden" }}>
-      {/* Map Header with Layer Switcher */}
+    <section
+      className={`card mapcard ${isFullscreen ? "mapcard-fullscreen" : ""}`}
+      style={
+        isFullscreen
+          ? {
+              position: "fixed",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 99999,
+              background: "var(--navy)",
+              color: "#ffffff",
+              padding: "20px 24px",
+              display: "flex",
+              flexDirection: "column",
+              borderRadius: 0,
+              boxShadow: "none",
+            }
+          : {
+              padding: "14px 14px 12px",
+              overflow: "hidden",
+            }
+      }
+    >
+      {/* Map Header with Layer Switcher & Fullscreen Toggle */}
       <div
         style={{
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          marginBottom: "12px",
+          marginBottom: "10px",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
           <Navigation size={16} color="#2463eb" />
-          <span style={{ fontSize: "14px", fontWeight: 800, color: "var(--ink)" }}>
-            GIS Map - {selectedCorridor}
+          <span
+            style={{
+              fontSize: "14px",
+              fontWeight: 800,
+              color: isFullscreen ? "#ffffff" : "var(--ink)",
+            }}
+          >
+            GIS Live Map — {selectedCorridor}
           </span>
         </div>
 
-        {/* Live Tile Switcher (Satellite / Map / Dark Layer) */}
-        <div style={{ display: "flex", background: "#f1f5f9", borderRadius: "6px", padding: "2px" }}>
-          {(["satellite", "map", "layer"] as const).map((layerKey) => {
-            const isActive = activeLayer === layerKey;
-            return (
-              <button
-                key={layerKey}
-                onClick={() => setActiveLayer(layerKey)}
-                style={{
-                  padding: "3px 9px",
-                  border: "none",
-                  borderRadius: "4px",
-                  cursor: "pointer",
-                  fontSize: "11px",
-                  fontWeight: isActive ? 700 : 500,
-                  background: isActive ? "#091426" : "transparent",
-                  color: isActive ? "#ffffff" : "#61799c",
-                  textTransform: "capitalize",
-                  transition: "all 0.15s ease",
-                }}
-              >
-                {layerKey}
-              </button>
-            );
-          })}
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          {/* Live Tile Switcher (Satellite / Map / Dark Layer) */}
+          <div style={{ display: "flex", background: isFullscreen ? "#1e293b" : "#f1f5f9", borderRadius: "6px", padding: "2px" }}>
+            {(["satellite", "map", "layer"] as const).map((layerKey) => {
+              const isActive = activeLayer === layerKey;
+              return (
+                <button
+                  key={layerKey}
+                  onClick={() => setActiveLayer(layerKey)}
+                  style={{
+                    padding: "3px 9px",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                    fontSize: "11px",
+                    fontWeight: isActive ? 700 : 500,
+                    background: isActive ? (isFullscreen ? "#2563eb" : "#091426") : "transparent",
+                    color: isActive ? "#ffffff" : (isFullscreen ? "#94a3b8" : "#61799c"),
+                    textTransform: "capitalize",
+                    transition: "all 0.15s ease",
+                  }}
+                >
+                  {layerKey}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Fullscreen Expand/Collapse Toggle */}
+          <button
+            onClick={toggleFullscreen}
+            title={isFullscreen ? "Exit Fullscreen (Esc)" : "Expand Map Fullscreen"}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
+              padding: "4px 8px",
+              background: isFullscreen ? "#2563eb" : "#f1f5f9",
+              color: isFullscreen ? "#ffffff" : "#475569",
+              border: "none",
+              borderRadius: "6px",
+              cursor: "pointer",
+              fontSize: "11px",
+              fontWeight: 700,
+              transition: "all 0.15s ease",
+            }}
+          >
+            {isFullscreen ? (
+              <>
+                <Minimize2 size={13} />
+                <span>Exit</span>
+              </>
+            ) : (
+              <>
+                <Maximize2 size={13} />
+                <span>Expand</span>
+              </>
+            )}
+          </button>
         </div>
       </div>
 
-      {/* Interactive Map Canvas Container */}
+      {/* Interactive Map Canvas Container (Taller: 460px in normal mode, flex: 1 in fullscreen) */}
       <div
         style={{
-          height: "280px",
+          height: isFullscreen ? "calc(100vh - 90px)" : "460px",
           width: "100%",
           borderRadius: "10px",
           overflow: "hidden",
@@ -407,10 +498,44 @@ export const LiveGisMap: React.FC<LiveGisMapProps> = ({ selectedCorridor }) => {
           }}
         >
           <span style={{ color: "#38bdf8" }}>➤</span>
-          <span>{selectedCorridor} GIS Telemetry</span>
+          <span>{selectedCorridor} Highway Telemetry</span>
         </div>
 
-        {/* Live GPS Zoom Controls */}
+        {/* Floating Road Condition Legend */}
+        <div
+          style={{
+            position: "absolute",
+            bottom: "10px",
+            left: "10px",
+            background: "rgba(9, 20, 38, 0.90)",
+            backdropFilter: "blur(6px)",
+            borderRadius: "6px",
+            padding: "5px 9px",
+            fontSize: "10.5px",
+            color: "#ffffff",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            border: "1px solid rgba(255,255,255,0.2)",
+            zIndex: 1000,
+            boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+            <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: "#ef4444" }} />
+            <span>Critical</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+            <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: "#f59c0b" }} />
+            <span>Moderate</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+            <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: "#10b981" }} />
+            <span>Healthy</span>
+          </div>
+        </div>
+
+        {/* Live GPS Zoom & Recenter Controls */}
         <div
           style={{
             position: "absolute",
@@ -461,6 +586,24 @@ export const LiveGisMap: React.FC<LiveGisMapProps> = ({ selectedCorridor }) => {
             }}
           >
             −
+          </button>
+          <button
+            onClick={handleRecenter}
+            title="Recenter Highway View"
+            style={{
+              width: "28px",
+              height: "28px",
+              borderRadius: "5px",
+              background: "rgba(9, 20, 38, 0.9)",
+              color: "#38bdf8",
+              border: "1px solid rgba(255,255,255,0.2)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+            }}
+          >
+            <RotateCcw size={13} />
           </button>
         </div>
       </div>

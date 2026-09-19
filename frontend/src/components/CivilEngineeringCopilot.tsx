@@ -158,14 +158,15 @@ export const CivilEngineeringCopilot: React.FC = () => {
               placeholder="⌕  Search corridor, NH number..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              style={{ margin: "12px 0 8px", padding: "8px 12px", fontSize: "13px" }}
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
                 style={{
                   position: "absolute",
-                  right: "12px",
-                  top: "28px",
+                  right: "10px",
+                  top: "20px",
                   background: "transparent",
                   border: "none",
                   color: "#94a3b8",
@@ -178,7 +179,7 @@ export const CivilEngineeringCopilot: React.FC = () => {
             )}
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "2px", maxHeight: "370px", overflowY: "auto" }}>
             {filteredCorridors.map((road) => {
               const isSelected = selectedCorridor === road.roadName;
               const badgeClass =
@@ -193,140 +194,154 @@ export const CivilEngineeringCopilot: React.FC = () => {
                   key={road.id}
                   className={`road ${isSelected ? "selected" : ""}`}
                   onClick={() => setSelectedCorridor(road.roadName)}
+                  style={{ padding: "9px 12px", margin: "4px 0" }}
                 >
-                  <b>{road.roadName}</b>
-                  <span className={`badge ${badgeClass}`}>• {road.severity}</span>
-                  <p>{road.state}</p>
-                  <small>
+                  <b style={{ fontSize: "15px" }}>{road.roadName}</b>
+                  <span className={`badge ${badgeClass}`} style={{ padding: "3px 8px", fontSize: "11px" }}>• {road.severity}</span>
+                  <p style={{ margin: "3px 0 0", fontSize: "12px" }}>{road.state}</p>
+                  <small style={{ marginTop: "3px", fontSize: "11.5px" }}>
                     {road.chainage} • {road.length}
                   </small>
-                  <span className="chev">›</span>
+                  <span className="chev" style={{ fontSize: "20px", right: "12px", bottom: "10px" }}>›</span>
                 </article>
               );
             })}
           </div>
         </section>
 
-        {/* Filters Panel */}
-        <section className="card filters">
-          <div className="panel-head">
+        {/* Compact Filters Panel */}
+        <section className="card filters" style={{ padding: "12px 16px" }}>
+          <div className="panel-head" style={{ fontSize: "14px", marginBottom: "8px" }}>
             <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <Filter size={16} color="#2463eb" />
+              <Filter size={15} color="#2463eb" />
               <span>Filters</span>
             </span>
             <span
               className="link"
+              style={{ fontSize: "12px", fontWeight: 700 }}
               onClick={() => {
                 setSeverityFilter("All");
                 setDefectTypeFilter("All");
               }}
             >
-              Clear all
+              Reset
             </span>
           </div>
 
-          <label>Severity</label>
-          <select
-            value={severityFilter}
-            onChange={(e) => setSeverityFilter(e.target.value)}
-          >
-            <option value="All">All Severities</option>
-            <option value="Critical">Critical Only</option>
-            <option value="Moderate">Moderate Only</option>
-            <option value="Healthy">Healthy Only</option>
-          </select>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+            <div>
+              <label style={{ display: "block", fontSize: "11px", fontWeight: 700, color: "var(--muted)", margin: "0 0 4px" }}>
+                Severity
+              </label>
+              <select
+                value={severityFilter}
+                onChange={(e) => setSeverityFilter(e.target.value)}
+                style={{ width: "100%", padding: "6px 8px", fontSize: "12px", borderRadius: "6px", border: "1px solid var(--line)", background: "#ffffff" }}
+              >
+                <option value="All">All Severities</option>
+                <option value="Critical">Critical</option>
+                <option value="Moderate">Moderate</option>
+                <option value="Healthy">Healthy</option>
+              </select>
+            </div>
 
-          <label>Defect Type</label>
-          <select
-            value={defectTypeFilter}
-            onChange={(e) => setDefectTypeFilter(e.target.value)}
-          >
-            <option value="All">All Defect Types</option>
-            <option value="Pavement Rutting">Pavement Rutting</option>
-            <option value="Alligator Cracking">Alligator Cracking</option>
-            <option value="Raveling">Raveling</option>
-            <option value="Pothole">Pothole</option>
-          </select>
+            <div>
+              <label style={{ display: "block", fontSize: "11px", fontWeight: 700, color: "var(--muted)", margin: "0 0 4px" }}>
+                Defect Type
+              </label>
+              <select
+                value={defectTypeFilter}
+                onChange={(e) => setDefectTypeFilter(e.target.value)}
+                style={{ width: "100%", padding: "6px 8px", fontSize: "12px", borderRadius: "6px", border: "1px solid var(--line)", background: "#ffffff" }}
+              >
+                <option value="All">All Types</option>
+                <option value="Pavement Rutting">Rutting</option>
+                <option value="Alligator Cracking">Cracking</option>
+                <option value="Raveling">Raveling</option>
+                <option value="Pothole">Pothole</option>
+              </select>
+            </div>
+          </div>
         </section>
       </aside>
 
       {/* ======================================================== */}
       {/* CENTER COLUMN: KPIS, CHARTS, DEFECTS TABLE (CHAT REMOVED)*/}
       {/* ======================================================== */}
-      <main style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+      <main style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
         {/* Active Corridor Dashboard Header Banner */}
         <div
           style={{
             background: "#ffffff",
             border: "1px solid var(--line)",
-            borderRadius: "14px",
-            padding: "16px 20px",
+            borderRadius: "12px",
+            padding: "10px 16px",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
             boxShadow: "0 2px 6px #113e7a0a",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             <div
               style={{
-                width: "42px",
-                height: "42px",
-                borderRadius: "10px",
+                width: "36px",
+                height: "36px",
+                borderRadius: "8px",
                 background: "linear-gradient(135deg, #2463eb 0%, #1d4ed8 100%)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 color: "#ffffff",
                 fontWeight: 800,
-                fontSize: "18px",
-                boxShadow: "0 2px 8px rgba(36, 99, 235, 0.3)",
+                fontSize: "16px",
+                boxShadow: "0 2px 6px rgba(36, 99, 235, 0.25)",
               }}
             >
               ♙
             </div>
             <div>
-              <div style={{ fontSize: "17px", fontWeight: 800, color: "var(--ink)", display: "flex", alignItems: "center", gap: "8px" }}>
+              <div style={{ fontSize: "15px", fontWeight: 800, color: "var(--ink)", display: "flex", alignItems: "center", gap: "6px" }}>
                 <span>Civil Engineering Telemetry &amp; Defect Studio</span>
                 <span
                   style={{
                     display: "inline-flex",
                     alignItems: "center",
-                    gap: "4px",
+                    gap: "3px",
                     background: "rgba(36, 99, 235, 0.08)",
                     color: "#2463eb",
-                    padding: "3px 9px",
-                    borderRadius: "12px",
-                    fontSize: "11px",
+                    padding: "2px 7px",
+                    borderRadius: "10px",
+                    fontSize: "10.5px",
                     fontWeight: 700,
                   }}
                 >
-                  <Sparkles size={11} />
+                  <Sparkles size={10} />
                   Autonomous Inspection
                 </span>
               </div>
-              <div style={{ fontSize: "12.5px", color: "var(--muted)", marginTop: "3px" }}>
-                Monitoring Corridor: <strong style={{ color: "var(--ink)" }}>{selectedCorridor}</strong> • Real-time IRC:SP:20 &amp; MoRTH Sec 500 Standards
+              <div style={{ fontSize: "11.5px", color: "var(--muted)", marginTop: "2px" }}>
+                Monitoring Corridor: <strong style={{ color: "var(--ink)" }}>{selectedCorridor}</strong> • Real-time IRC:SP:20 &amp; MoRTH Sec 500
               </div>
             </div>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
             <span
               style={{
                 display: "inline-flex",
                 alignItems: "center",
-                gap: "5px",
+                gap: "4px",
                 background: "#f0fdf4",
                 color: "#16a34a",
                 border: "1px solid #bbf7d0",
-                padding: "4px 10px",
-                borderRadius: "14px",
-                fontSize: "12px",
+                padding: "3px 8px",
+                borderRadius: "12px",
+                fontSize: "11.5px",
                 fontWeight: 700,
               }}
             >
-              <CheckCircle2 size={13} color="#16a34a" />
+              <CheckCircle2 size={12} color="#16a34a" />
               Sensor Online
             </span>
           </div>
@@ -337,86 +352,86 @@ export const CivilEngineeringCopilot: React.FC = () => {
           {/* Card 1: Pavement Condition */}
           <article className="card metric">
             <h3>
-              <span>➤ &nbsp; Pavement Condition</span>
+              <span>➤ Pavement Condition</span>
               <span style={{ color: "#8ba0c1", fontWeight: 400 }}>›</span>
             </h3>
             {/* Smooth SVG Radial Gauge */}
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: "12px" }}>
-              <div style={{ position: "relative", width: "100px", height: "55px" }}>
-                <svg width="100" height="55" viewBox="0 0 100 55">
-                  <path d="M 12 50 A 38 38 0 0 1 88 50" fill="none" stroke="#e2e8f0" strokeWidth="8" strokeLinecap="round" />
-                  <path d="M 12 50 A 38 38 0 0 1 74 18" fill="none" stroke="#10b981" strokeWidth="8" strokeLinecap="round" />
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: "4px" }}>
+              <div style={{ position: "relative", width: "88px", height: "46px" }}>
+                <svg width="88" height="46" viewBox="0 0 100 55">
+                  <path d="M 12 50 A 38 38 0 0 1 88 50" fill="none" stroke="#e2e8f0" strokeWidth="9" strokeLinecap="round" />
+                  <path d="M 12 50 A 38 38 0 0 1 74 18" fill="none" stroke="#10b981" strokeWidth="9" strokeLinecap="round" />
                 </svg>
                 <div
                   style={{
                     position: "absolute",
-                    bottom: "2px",
+                    bottom: "1px",
                     left: 0,
                     right: 0,
                     textAlign: "center",
                     fontWeight: 800,
-                    fontSize: "22px",
+                    fontSize: "19px",
                     color: "var(--ink)",
                   }}
                 >
                   72
                 </div>
               </div>
-              <span style={{ fontSize: "12px", color: "var(--muted)" }}>100</span>
-              <div className="rating" style={{ marginTop: "4px" }}>Good</div>
+              <span style={{ fontSize: "11px", color: "var(--muted)" }}>100</span>
+              <div className="rating" style={{ marginTop: "2px", fontSize: "11.5px" }}>Good</div>
             </div>
           </article>
 
           {/* Card 2: Safety Score */}
           <article className="card metric">
             <h3>
-              <span>⬡ &nbsp; Safety Score</span>
+              <span>⬡ Safety Score</span>
               <span style={{ color: "#8ba0c1", fontWeight: 400 }}>›</span>
             </h3>
             {/* Smooth SVG Radial Gauge */}
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: "12px" }}>
-              <div style={{ position: "relative", width: "100px", height: "55px" }}>
-                <svg width="100" height="55" viewBox="0 0 100 55">
-                  <path d="M 12 50 A 38 38 0 0 1 88 50" fill="none" stroke="#e2e8f0" strokeWidth="8" strokeLinecap="round" />
-                  <path d="M 12 50 A 38 38 0 0 1 68 22" fill="none" stroke="#f59c0b" strokeWidth="8" strokeLinecap="round" />
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: "4px" }}>
+              <div style={{ position: "relative", width: "88px", height: "46px" }}>
+                <svg width="88" height="46" viewBox="0 0 100 55">
+                  <path d="M 12 50 A 38 38 0 0 1 88 50" fill="none" stroke="#e2e8f0" strokeWidth="9" strokeLinecap="round" />
+                  <path d="M 12 50 A 38 38 0 0 1 68 22" fill="none" stroke="#f59c0b" strokeWidth="9" strokeLinecap="round" />
                 </svg>
                 <div
                   style={{
                     position: "absolute",
-                    bottom: "2px",
+                    bottom: "1px",
                     left: 0,
                     right: 0,
                     textAlign: "center",
                     fontWeight: 800,
-                    fontSize: "22px",
+                    fontSize: "19px",
                     color: "var(--ink)",
                   }}
                 >
                   68
                 </div>
               </div>
-              <span style={{ fontSize: "12px", color: "var(--muted)" }}>100</span>
-              <div className="rating orange" style={{ marginTop: "4px" }}>Moderate</div>
+              <span style={{ fontSize: "11px", color: "var(--muted)" }}>100</span>
+              <div className="rating orange" style={{ marginTop: "2px", fontSize: "11.5px" }}>Moderate</div>
             </div>
           </article>
 
           {/* Card 3: Total Defects */}
           <article className="card metric">
-            <h3>⚠ &nbsp; Total Defects ({selectedCorridor})</h3>
-            <div className="value">
-              23 <small className="badge critical">↑ 12%</small>
+            <h3>⚠ Defects ({selectedCorridor})</h3>
+            <div className="value" style={{ fontSize: "26px", marginTop: "10px" }}>
+              23 <small className="badge critical" style={{ fontSize: "10.5px", padding: "2px 6px" }}>↑ 12%</small>
             </div>
-            <div className="sub">vs. last 7 days</div>
+            <div className="sub" style={{ fontSize: "11px", marginTop: "2px" }}>vs. last 7 days</div>
           </article>
 
           {/* Card 4: Work Orders */}
           <article className="card metric">
             <h3>
-              <span>▧ &nbsp; Work Orders</span>
+              <span>▧ Work Orders</span>
               <span style={{ color: "#8ba0c1", fontWeight: 400 }}>›</span>
             </h3>
-            <div className="value">5</div>
-            <div className="open">Open &gt;</div>
+            <div className="value" style={{ fontSize: "26px", marginTop: "10px" }}>5</div>
+            <div className="open" style={{ fontSize: "12px" }}>Open &gt;</div>
           </article>
         </section>
 
@@ -445,18 +460,18 @@ export const CivilEngineeringCopilot: React.FC = () => {
         {/* Tab 1 View: Defect Analysis Charts & Table */}
         {activeCenterTab === "defect" && (
           <>
-            <section className="charts" style={{ marginTop: "8px" }}>
+            <section className="charts" style={{ marginTop: "6px" }}>
               {/* Defect Distribution Donut Chart with SVG and Flex Legend */}
-              <article className="card chart" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-                <h3 style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <article className="card chart" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "14px 16px" }}>
+                <h3 style={{ display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: "14px" }}>
                   <span>Defect Distribution ({selectedCorridor})</span>
-                  <span style={{ color: "#8ba0c1", fontSize: "13px" }}>ⓘ</span>
+                  <span style={{ color: "#8ba0c1", fontSize: "12px" }}>ⓘ</span>
                 </h3>
                 
-                <div style={{ display: "flex", alignItems: "center", gap: "20px", marginTop: "12px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "16px", marginTop: "8px" }}>
                   {/* SVG Donut */}
-                  <div style={{ position: "relative", width: "115px", height: "115px", flexShrink: 0 }}>
-                    <svg width="115" height="115" viewBox="0 0 36 36">
+                  <div style={{ position: "relative", width: "95px", height: "95px", flexShrink: 0 }}>
+                    <svg width="95" height="95" viewBox="0 0 36 36">
                       <circle cx="18" cy="18" r="14" fill="none" stroke="#f1f5f9" strokeWidth="5" />
                       {/* Pavement Rutting 39% */}
                       <circle
@@ -513,30 +528,30 @@ export const CivilEngineeringCopilot: React.FC = () => {
                         justifyContent: "center",
                       }}
                     >
-                      <span style={{ fontSize: "20px", fontWeight: 800, color: "var(--ink)" }}>23</span>
-                      <span style={{ fontSize: "10px", color: "var(--muted)", fontWeight: 700 }}>Total Defects</span>
+                      <span style={{ fontSize: "17px", fontWeight: 800, color: "var(--ink)" }}>23</span>
+                      <span style={{ fontSize: "9.5px", color: "var(--muted)", fontWeight: 700 }}>Defects</span>
                     </div>
                   </div>
 
                   {/* Clean Legend */}
-                  <div style={{ display: "flex", flexDirection: "column", gap: "6px", width: "100%", fontSize: "13px" }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "5px", width: "100%", fontSize: "12px" }}>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                        <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#ef4444" }} />
+                      <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                        <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: "#ef4444" }} />
                         <span>Pavement Rutting</span>
                       </div>
                       <b>9 (39%)</b>
                     </div>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                        <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#ff7b12" }} />
+                      <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                        <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: "#ff7b12" }} />
                         <span>Alligator Cracking</span>
                       </div>
                       <b>7 (30%)</b>
                     </div>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                        <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#14b982" }} />
+                      <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                        <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: "#14b982" }} />
                         <span>Raveling</span>
                       </div>
                       <b>4 (17%)</b>
@@ -546,12 +561,12 @@ export const CivilEngineeringCopilot: React.FC = () => {
               </article>
 
               {/* Severity Breakdown Progress Bars */}
-              <article className="card chart">
-                <h3 style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <article className="card chart" style={{ padding: "14px 16px" }}>
+                <h3 style={{ display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: "14px" }}>
                   <span>Severity Breakdown</span>
-                  <span style={{ color: "#8ba0c1", fontSize: "13px" }}>ⓘ</span>
+                  <span style={{ color: "#8ba0c1", fontSize: "12px" }}>ⓘ</span>
                 </h3>
-                <div className="barrow">
+                <div className="barrow" style={{ marginTop: "12px" }}>
                   <span style={{ color: "#ef4444" }}>●</span> Critical{" "}
                   <span>
                     5　<em style={{ fontStyle: "normal", color: "#8ba0c1" }}>21%</em>
@@ -561,7 +576,7 @@ export const CivilEngineeringCopilot: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="barrow">
+                <div className="barrow" style={{ marginTop: "12px" }}>
                   <span style={{ color: "#f59c0b" }}>●</span> Moderate{" "}
                   <span>
                     11　<em style={{ fontStyle: "normal", color: "#8ba0c1" }}>48%</em>
@@ -571,7 +586,7 @@ export const CivilEngineeringCopilot: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="barrow">
+                <div className="barrow" style={{ marginTop: "12px" }}>
                   <span style={{ color: "#14b982" }}>●</span> Healthy{" "}
                   <span>
                     7　<em style={{ fontStyle: "normal", color: "#8ba0c1" }}>31%</em>
@@ -584,36 +599,36 @@ export const CivilEngineeringCopilot: React.FC = () => {
             </section>
 
             {/* Recent Defects Data Table */}
-            <section className="card" style={{ padding: "20px", marginTop: "16px" }}>
+            <section className="card" style={{ padding: "14px 16px", marginTop: "12px" }}>
               <div
                 style={{
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
-                  marginBottom: "14px",
+                  marginBottom: "10px",
                 }}
               >
-                <span style={{ fontSize: "16px", fontWeight: 800, color: "var(--ink)" }}>
-                  Recent Defects - {selectedCorridor}
+                <span style={{ fontSize: "14px", fontWeight: 800, color: "var(--ink)" }}>
+                  Recent Defects — {selectedCorridor}
                 </span>
                 <span
-                  style={{ fontSize: "13px", color: "var(--blue)", fontWeight: 700, cursor: "pointer" }}
+                  style={{ fontSize: "12px", color: "var(--blue)", fontWeight: 700, cursor: "pointer" }}
                 >
                   View All Defects &gt;
                 </span>
               </div>
 
               <div style={{ overflowX: "auto" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px" }}>
                   <thead>
                     <tr style={{ borderBottom: "1px solid var(--line)", textAlign: "left", color: "var(--muted)" }}>
-                      <th style={{ padding: "10px 12px", fontWeight: 700 }}>ID</th>
-                      <th style={{ padding: "10px 12px", fontWeight: 700 }}>Location (Km)</th>
-                      <th style={{ padding: "10px 12px", fontWeight: 700 }}>Defect Type</th>
-                      <th style={{ padding: "10px 12px", fontWeight: 700 }}>Severity</th>
-                      <th style={{ padding: "10px 12px", fontWeight: 700 }}>Condition Score</th>
-                      <th style={{ padding: "10px 12px", fontWeight: 700 }}>Status</th>
-                      <th style={{ padding: "10px 12px", fontWeight: 700 }}>Actions</th>
+                      <th style={{ padding: "8px 10px", fontWeight: 700 }}>ID</th>
+                      <th style={{ padding: "8px 10px", fontWeight: 700 }}>Location (Km)</th>
+                      <th style={{ padding: "8px 10px", fontWeight: 700 }}>Defect Type</th>
+                      <th style={{ padding: "8px 10px", fontWeight: 700 }}>Severity</th>
+                      <th style={{ padding: "8px 10px", fontWeight: 700 }}>Condition Score</th>
+                      <th style={{ padding: "8px 10px", fontWeight: 700 }}>Status</th>
+                      <th style={{ padding: "8px 10px", fontWeight: 700 }}>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -624,10 +639,10 @@ export const CivilEngineeringCopilot: React.FC = () => {
                         onMouseEnter={(e) => (e.currentTarget.style.background = "#f8fafc")}
                         onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                       >
-                        <td style={{ padding: "12px", color: "var(--muted)", fontWeight: 600 }}>{row.id}</td>
-                        <td style={{ padding: "12px", color: "var(--ink)", fontWeight: 700 }}>{row.location}</td>
-                        <td style={{ padding: "12px", color: "var(--text-secondary)" }}>{row.defectType}</td>
-                        <td style={{ padding: "12px" }}>
+                        <td style={{ padding: "8px 10px", color: "var(--muted)", fontWeight: 600 }}>{row.id}</td>
+                        <td style={{ padding: "8px 10px", color: "var(--ink)", fontWeight: 700 }}>{row.location}</td>
+                        <td style={{ padding: "8px 10px", color: "var(--text-secondary)" }}>{row.defectType}</td>
+                        <td style={{ padding: "8px 10px" }}>
                           <span
                             style={{
                               display: "inline-flex",
@@ -659,23 +674,23 @@ export const CivilEngineeringCopilot: React.FC = () => {
                             {row.severity}
                           </span>
                         </td>
-                        <td style={{ padding: "12px", color: "var(--ink)", fontWeight: 700 }}>{row.conditionScore}</td>
-                        <td style={{ padding: "12px" }}>
+                        <td style={{ padding: "8px 10px", color: "var(--ink)", fontWeight: 700 }}>{row.conditionScore}</td>
+                        <td style={{ padding: "8px 10px" }}>
                           <span
                             style={{
                               background: row.statusBg,
                               color: row.statusColor,
-                              padding: "3px 10px",
+                              padding: "2px 8px",
                               borderRadius: "12px",
-                              fontSize: "12px",
+                              fontSize: "11.5px",
                               fontWeight: 700,
                             }}
                           >
                             {row.status}
                           </span>
                         </td>
-                        <td style={{ padding: "12px" }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                        <td style={{ padding: "8px 10px" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                             <span
                               style={{ color: "var(--blue)", fontWeight: 700, cursor: "pointer" }}
                             >
@@ -752,59 +767,58 @@ export const CivilEngineeringCopilot: React.FC = () => {
       {/* RIGHT COLUMN: REAL LEAFLET GIS MAP & TELEMETRY           */}
       {/* ======================================================== */}
       <aside className="right">
-        {/* Real Live Leaflet GIS Map with Satellite / Street / Dark Layers */}
+        {/* Real Live Leaflet GIS Map with Satellite / Street / Dark Layers (460px height) */}
         <LiveGisMap selectedCorridor={selectedCorridor} />
 
-        {/* Quick Insights Card */}
-        <section className="card insights">
-          <div className="panel-head">
-            <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <TrendingUp size={16} color="#2463eb" />
-              <span>Quick Insights</span>
-            </span>
-            <span className="link" onClick={() => setActiveCenterTab("insights")}>
-              View All
+        {/* Compact Unified Corridor Insights & Telemetry HUD */}
+        <section className="card" style={{ padding: "12px 14px" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              <TrendingUp size={15} color="#2463eb" />
+              <span style={{ fontSize: "13px", fontWeight: 800, color: "var(--ink)" }}>
+                Telemetry &amp; Corridor Insights
+              </span>
+            </div>
+            <span
+              className="link"
+              style={{ fontSize: "12px", fontWeight: 700 }}
+              onClick={() => setActiveCenterTab("insights")}
+            >
+              View All &gt;
             </span>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginTop: "14px" }}>
-            <div className="notice" style={{ margin: 0 }}>
-              <b>3</b>
-              <p>Critical Segments</p>
+          {/* 4 Mini Stat Badges */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "6px" }}>
+            <div style={{ background: "#fef2f2", border: "1px solid #fee2e2", borderRadius: "8px", padding: "6px 4px", textAlign: "center" }}>
+              <b style={{ color: "#dc2626", fontSize: "14px", display: "block", lineHeight: 1.1 }}>3</b>
+              <span style={{ fontSize: "10px", color: "#991b1b", fontWeight: 700 }}>Critical</span>
             </div>
-            <div className="notice" style={{ margin: 0 }}>
-              <b>23</b>
-              <p>Total Defects</p>
+            <div style={{ background: "#fffbeb", border: "1px solid #fef3c7", borderRadius: "8px", padding: "6px 4px", textAlign: "center" }}>
+              <b style={{ color: "#d97706", fontSize: "14px", display: "block", lineHeight: 1.1 }}>23</b>
+              <span style={{ fontSize: "10px", color: "#92400e", fontWeight: 700 }}>Defects</span>
             </div>
-            <div className="notice" style={{ margin: 0 }}>
-              <b>68%</b>
-              <p>Overall Health</p>
+            <div style={{ background: "#f0fdf4", border: "1px solid #dcfce7", borderRadius: "8px", padding: "6px 4px", textAlign: "center" }}>
+              <b style={{ color: "#16a34a", fontSize: "14px", display: "block", lineHeight: 1.1 }}>68%</b>
+              <span style={{ fontSize: "10px", color: "#166534", fontWeight: 700 }}>Health</span>
             </div>
-            <div className="notice" style={{ margin: 0 }}>
-              <b>12 d</b>
-              <p>Maint. Window</p>
+            <div style={{ background: "#eff6ff", border: "1px solid #dbeafe", borderRadius: "8px", padding: "6px 4px", textAlign: "center" }}>
+              <b style={{ color: "#2563eb", fontSize: "14px", display: "block", lineHeight: 1.1 }}>12 d</b>
+              <span style={{ fontSize: "10px", color: "#1e40af", fontWeight: 700 }}>Window</span>
             </div>
           </div>
-        </section>
 
-        {/* Live Corridor Status Summary Card */}
-        <section className="card" style={{ padding: "18px" }}>
-          <div style={{ fontSize: "14px", fontWeight: 800, color: "var(--ink)", marginBottom: "12px", display: "flex", alignItems: "center", gap: "8px" }}>
-            <CheckCircle2 size={16} color="#14b982" />
-            <span>Telemetry Status</span>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: "8px", fontSize: "12.5px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", color: "var(--muted)" }}>
-              <span>Survey Speed:</span>
-              <strong style={{ color: "var(--ink)" }}>42 km/h (Optimal)</strong>
+          {/* Live Sensor Telemetry Strip */}
+          <div style={{ marginTop: "8px", paddingTop: "8px", borderTop: "1px solid #f1f5f9", display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: "11px", color: "var(--muted)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+              <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#10b981" }} />
+              <span>Speed: <strong style={{ color: "var(--ink)" }}>42 km/h</strong></span>
             </div>
-            <div style={{ display: "flex", justifyContent: "space-between", color: "var(--muted)" }}>
-              <span>Pavement Temp:</span>
-              <strong style={{ color: "var(--ink)" }}>34.2 °C (Dry)</strong>
+            <div>
+              <span>Temp: <strong style={{ color: "var(--ink)" }}>34.2 °C</strong></span>
             </div>
-            <div style={{ display: "flex", justifyContent: "space-between", color: "var(--muted)" }}>
-              <span>LiDAR Profiler:</span>
-              <strong style={{ color: "#14b982" }}>Calibrated (ASTM E950)</strong>
+            <div>
+              <span>LiDAR: <strong style={{ color: "#14b982" }}>ASTM E950</strong></span>
             </div>
           </div>
         </section>
